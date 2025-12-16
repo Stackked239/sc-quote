@@ -1009,11 +1009,358 @@
             margin-top: 8px;
         }
 
+        /* Guide Tab Styles */
+        .guide-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .guide-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .guide-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .guide-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .guide-toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .guide-toc h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .toc-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .toc-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .guide-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .guide-section h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        .guide-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 28px;
+            margin-bottom: 16px;
+        }
+
+        .guide-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .guide-intro {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .guide-steps {
+            display: grid;
+            gap: 16px;
+        }
+
+        .guide-step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .guide-step .step-num {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--bg-primary);
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        .guide-step .step-content {
+            flex: 1;
+        }
+
+        .guide-step .step-content p {
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .guide-step .step-content a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        .guide-step .step-content a:hover {
+            text-decoration: underline;
+        }
+
+        .guide-callout {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid;
+        }
+
+        .guide-callout.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: #f59e0b;
+        }
+
+        .guide-callout.success {
+            background: rgba(0, 212, 170, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        .guide-callout.info {
+            background: rgba(0, 168, 255, 0.1);
+            border-color: var(--accent-secondary);
+        }
+
+        .guide-callout .callout-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .guide-callout .callout-content {
+            flex: 1;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .guide-callout .callout-content strong {
+            color: var(--text-primary);
+        }
+
+        .guide-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .guide-table th,
+        .guide-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .guide-table th {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .guide-table td {
+            color: var(--text-secondary);
+        }
+
+        .guide-table code {
+            background: var(--bg-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-explain {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .metric-explain h4 {
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+        }
+
+        .metric-explain p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .metric-explain code {
+            display: block;
+            background: var(--bg-primary);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            margin-top: 10px;
+        }
+
+        .color-legend {
+            display: grid;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .legend-item span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .legend-item strong {
+            color: var(--text-primary);
+        }
+
+        .guide-list {
+            color: var(--text-secondary);
+            padding-left: 20px;
+            margin: 12px 0;
+        }
+
+        .guide-list li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .guide-list strong {
+            color: var(--text-primary);
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 16px 0;
+        }
+
+        .two-column h4 {
+            color: var(--accent-primary);
+            margin-bottom: 12px;
+        }
+
+        .guide-footer {
+            text-align: center;
+            padding-top: 24px;
+            margin-top: 24px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
         @media (max-width: 900px) {
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .two-column {
+                grid-template-columns: 1fr;
+            }
             .calculator-grid {
                 grid-template-columns: 1fr;
             }
             .rate-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .toc-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -1082,6 +1429,7 @@
         <div class="tab-navigation">
             <button class="tab-btn active" data-tab="dashboard">📊 Dashboard</button>
             <button class="tab-btn" data-tab="calculator">🧮 Quote Calculator</button>
+            <button class="tab-btn" data-tab="guide">📖 How To Guide</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -1427,19 +1775,19 @@
                         <p class="calc-subtitle" id="ratesSubtitle">Based on <strong>Team Average</strong>, these are the conversion rates by timing:</p>
                         <div class="rate-grid">
                             <div class="rate-item">
-                                <div class="rate-label">Same Month</div>
+                                <div class="rate-label" id="labelSameMonth">SAME MONTH</div>
                                 <div class="rate-value" id="avgSameMonth">--%</div>
-                                <div class="rate-desc">Closes in the month quote was sent</div>
+                                <div class="rate-desc" id="descSameMonth">Closes in the month quote was sent</div>
                             </div>
                             <div class="rate-item">
-                                <div class="rate-label">+1 Month</div>
+                                <div class="rate-label" id="labelOneMonth">+1 MONTH</div>
                                 <div class="rate-value" id="avgOneMonth">--%</div>
-                                <div class="rate-desc">Closes the following month</div>
+                                <div class="rate-desc" id="descOneMonth">Closes the following month</div>
                             </div>
                             <div class="rate-item">
-                                <div class="rate-label">+2 Months</div>
+                                <div class="rate-label" id="labelTwoMonth">+2 MONTHS</div>
                                 <div class="rate-value" id="avgTwoMonth">--%</div>
-                                <div class="rate-desc">Closes two months later</div>
+                                <div class="rate-desc" id="descTwoMonth">Closes two months later</div>
                             </div>
                         </div>
                     </div>
@@ -1480,6 +1828,369 @@
                 </div>
             </div>
         </div> <!-- End Calculator Tab -->
+
+        <!-- How To Guide Tab -->
+        <div id="guideTab" class="tab-content">
+            <div class="guide-container">
+                <div class="guide-header">
+                    <h1>📖 How To Guide</h1>
+                    <p>Everything you need to know about using the Quote Conversion Analytics Dashboard</p>
+                </div>
+
+                <div class="guide-toc">
+                    <h3>Quick Navigation</h3>
+                    <div class="toc-grid">
+                        <a href="#guide-getting-started" class="toc-item">🚀 Getting Started</a>
+                        <a href="#guide-summary-cards" class="toc-item">📊 Summary Cards</a>
+                        <a href="#guide-booking-timing" class="toc-item">⏱️ Booking Timing</a>
+                        <a href="#guide-monthly-table" class="toc-item">📅 Monthly Table</a>
+                        <a href="#guide-yoy" class="toc-item">📈 Year-over-Year</a>
+                        <a href="#guide-team" class="toc-item">👥 Team Performance</a>
+                        <a href="#guide-calculator" class="toc-item">🧮 Quote Calculator</a>
+                        <a href="#guide-glossary" class="toc-item">📚 Glossary</a>
+                    </div>
+                </div>
+
+                <!-- Getting Started -->
+                <div class="guide-section" id="guide-getting-started">
+                    <h2>🚀 Getting Started</h2>
+                    <p class="guide-intro">Follow these steps to load your data and start analyzing your quote conversion metrics.</p>
+                    
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h4>Open the Salesforce Report</h4>
+                                <p>Navigate to the <a href="https://sundaycool.lightning.force.com/lightning/r/Report/00O4w000008Pw8FEAS/view" target="_blank">Quote Conversion Report</a> in Salesforce Lightning.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h4>Export the Report</h4>
+                                <p>Click the <strong>Export</strong> button in the report toolbar.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h4>Select Export Options</h4>
+                                <p>Choose <strong>"Details Only"</strong> (not Summary) and select <strong>.csv</strong> as the format.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num">4</div>
+                            <div class="step-content">
+                                <h4>Upload to Dashboard</h4>
+                                <p>Click the <strong>Load CSV</strong> button in the dashboard and select your downloaded file.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guide-callout warning">
+                        <div class="callout-icon">⚠️</div>
+                        <div class="callout-content">
+                            <strong>Important:</strong> Always export with "Details Only" to ensure all individual record data is included. Summary exports will not work with this dashboard.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="guide-section" id="guide-summary-cards">
+                    <h2>📊 Understanding Summary Cards</h2>
+                    <p class="guide-intro">Summary cards provide at-a-glance metrics for the selected time period. All booking timing percentages are calculated based on <strong>dollar value</strong>, not deal count.</p>
+
+                    <div class="metrics-grid">
+                        <div class="metric-explain">
+                            <h4>Total Quotes</h4>
+                            <p>The total number of quotes sent during the selected period.</p>
+                        </div>
+                        <div class="metric-explain">
+                            <h4>Win Rate</h4>
+                            <p>Percentage of closed opportunities that were won.</p>
+                            <code>Won Count ÷ (Won + Lost Count) × 100</code>
+                        </div>
+                        <div class="metric-explain">
+                            <h4>Total Conversion Ratio</h4>
+                            <p>Percentage of quoted dollars that converted to closed won revenue. Your most important efficiency metric.</p>
+                            <code>Total $ Won ÷ Total $ Quoted × 100</code>
+                        </div>
+                        <div class="metric-explain">
+                            <h4>Avg Days to Close</h4>
+                            <p>Average number of days between quote sent and opportunity close, shown separately for Won and Lost deals.</p>
+                            <code>Close Date - Quote Sent Date</code>
+                        </div>
+                    </div>
+
+                    <h3>Booking Timing Metrics</h3>
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Definition</th>
+                                <th>Typical Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Same Month %</strong></td>
+                                <td>Revenue closed in the same month the quote was sent</td>
+                                <td>15-30%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>+1 Month %</strong></td>
+                                <td>Revenue closed the month after the quote was sent</td>
+                                <td>20-35%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>+2 Months %</strong></td>
+                                <td>Revenue closed two months after the quote was sent</td>
+                                <td>10-20%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>+3 Months+ %</strong></td>
+                                <td>Revenue closed three or more months later</td>
+                                <td>5-15%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Booking Timing -->
+                <div class="guide-section" id="guide-booking-timing">
+                    <h2>⏱️ Booking Timing Analysis</h2>
+                    <p class="guide-intro">The Booking Timing chart visualizes how your revenue distributes across different time horizons from quote to close.</p>
+
+                    <h3>Reading the Chart</h3>
+                    <div class="color-legend">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #00d4aa;"></span>
+                            <span><strong>Same Month</strong> - Fast-closing deals with short sales cycles</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #00a8ff;"></span>
+                            <span><strong>+1 Month</strong> - Standard sales cycle deals</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #a78bfa;"></span>
+                            <span><strong>+2 Months</strong> - Longer consideration period deals</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #f472b6;"></span>
+                            <span><strong>+3+ Months</strong> - Extended sales cycles (often larger deals)</span>
+                        </div>
+                    </div>
+
+                    <div class="guide-callout success">
+                        <div class="callout-icon">📈</div>
+                        <div class="callout-content">
+                            <strong>Healthy Pattern:</strong> A balanced distribution with the majority in Same Month and +1 Month indicates good sales velocity. High Same Month % suggests strong urgency creation.
+                        </div>
+                    </div>
+
+                    <div class="guide-callout warning">
+                        <div class="callout-icon">⚠️</div>
+                        <div class="callout-content">
+                            <strong>Warning Sign:</strong> Heavy weighting toward +3 Months+ may indicate deals stalling, need for better follow-up, or quotes being sent too early.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Table -->
+                <div class="guide-section" id="guide-monthly-table">
+                    <h2>📅 Monthly Breakdown Table</h2>
+                    <p class="guide-intro">The Monthly Booking Timing Breakdown provides a detailed view of performance for each month.</p>
+
+                    <h3>Column Definitions</h3>
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Month</strong></td><td>The month when quotes were sent</td></tr>
+                            <tr><td><strong>Total Quoted</strong></td><td>Total dollar value of all quotes sent that month</td></tr>
+                            <tr><td><strong>Total Ratio</strong></td><td>Overall conversion rate ($ Won ÷ $ Quoted)</td></tr>
+                            <tr><td><strong>Same/+1/+2/+3+ Month</strong></td><td>% of quoted $ that closed won in each timing category</td></tr>
+                            <tr><td><strong>Avg Days (Won/Lost)</strong></td><td>Average days to close for won/lost deals from that month</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="guide-callout info">
+                        <div class="callout-icon">💡</div>
+                        <div class="callout-content">
+                            <strong>Pro Tip:</strong> Recent months may show lower percentages because deals are still in progress. For accurate analysis, focus on months that are at least 3 months old.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Year-over-Year -->
+                <div class="guide-section" id="guide-yoy">
+                    <h2>📈 Year-over-Year Comparison</h2>
+                    <p class="guide-intro">Compare the same month across different years to identify seasonal patterns and year-over-year growth.</p>
+
+                    <h3>Available Metrics</h3>
+                    <ul class="guide-list">
+                        <li><strong>Total Conversion Ratio</strong> - Overall efficiency comparison</li>
+                        <li><strong>Same Month %</strong> - Fast-close rate comparison</li>
+                        <li><strong>+1/+2 Month %</strong> - Extended cycle comparison</li>
+                        <li><strong>Total Quoted $</strong> - Quoting activity volume</li>
+                        <li><strong>Total Won $</strong> - Revenue comparison</li>
+                        <li><strong>Avg Days to Close (Won/Lost)</strong> - Sales velocity trends</li>
+                    </ul>
+
+                    <h3>Using YoY Analysis</h3>
+                    <div class="two-column">
+                        <div>
+                            <h4>Identify Patterns</h4>
+                            <ul class="guide-list">
+                                <li>Which months are consistently strong?</li>
+                                <li>When do conversion rates typically dip?</li>
+                                <li>Are you improving year over year?</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>Strategic Planning</h4>
+                            <ul class="guide-list">
+                                <li>Plan marketing around high-conversion months</li>
+                                <li>Prepare for slower periods</li>
+                                <li>Set realistic monthly targets</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Performance -->
+                <div class="guide-section" id="guide-team">
+                    <h2>👥 Team Performance Analysis</h2>
+                    <p class="guide-intro">Compare individual rep metrics to identify top performers and coaching opportunities.</p>
+
+                    <h3>Key Columns</h3>
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Owner</strong></td><td>Sales rep name</td></tr>
+                            <tr><td><strong>Total Quoted $</strong></td><td>Total value of quotes sent</td></tr>
+                            <tr><td><strong>Win Rate</strong></td><td>% of closed deals that were won</td></tr>
+                            <tr><td><strong>Value Won</strong></td><td>Total dollar value of won deals</td></tr>
+                            <tr><td><strong>Days (Won/Lost)</strong></td><td>Average days to close</td></tr>
+                            <tr><td><strong>Timing %</strong></td><td>Conversion rates by timing category</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="guide-callout info">
+                        <div class="callout-icon">🎯</div>
+                        <div class="callout-content">
+                            <strong>Coaching Opportunities:</strong>
+                            <ul class="guide-list" style="margin-top: 8px; margin-bottom: 0;">
+                                <li><strong>Low Same Month %</strong> - May need help creating urgency</li>
+                                <li><strong>High Days to Close</strong> - Pipeline management coaching</li>
+                                <li><strong>Low Win Rate</strong> - Qualification or negotiation training</li>
+                                <li><strong>High Volume, Low Conversion</strong> - Quality over quantity discussion</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quote Calculator -->
+                <div class="guide-section" id="guide-calculator">
+                    <h2>🧮 Quote Calculator</h2>
+                    <p class="guide-intro">Plan quoting activity by working backwards from a revenue goal using your historical conversion rates.</p>
+
+                    <h3>How It Works</h3>
+                    <p>Revenue in any given month comes from quotes sent in:</p>
+                    <ul class="guide-list">
+                        <li><strong>The same month</strong> (Same Month %)</li>
+                        <li><strong>The previous month</strong> (+1 Month %)</li>
+                        <li><strong>Two months prior</strong> (+2 Months %)</li>
+                    </ul>
+
+                    <h3>Using the Calculator</h3>
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h4>Select a Sales Rep (Optional)</h4>
+                                <p>Choose "All Team Members" for team averages, or select a specific rep to use their personal conversion rates.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h4>Choose Target Month</h4>
+                                <p>Select the future month you want to hit your sales goal in.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h4>Enter Sales Goal</h4>
+                                <p>Input the dollar amount of Closed Won revenue you want to achieve.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-num">4</div>
+                            <div class="step-content">
+                                <h4>Review Results</h4>
+                                <p>See existing pipeline contributions and required quoting activity.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Understanding Results</h3>
+                    <div class="color-legend">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #00a8ff;"></span>
+                            <span><strong>Blue (Already Quoted)</strong> - Shows expected contribution from existing quotes</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #00d4aa;"></span>
+                            <span><strong>Green (Need to Quote)</strong> - Shows required quoting amount</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ff6b6b;"></span>
+                            <span><strong>Red (Gap)</strong> - Additional quoting needed beyond existing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Glossary -->
+                <div class="guide-section" id="guide-glossary">
+                    <h2>📚 Glossary of Terms</h2>
+                    
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>Term</th>
+                                <th>Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Booking Timing</strong></td><td>Classification of when revenue closed relative to when the quote was sent</td></tr>
+                            <tr><td><strong>Closed Lost</strong></td><td>An opportunity that was quoted but did not result in a sale</td></tr>
+                            <tr><td><strong>Closed Won</strong></td><td>An opportunity that was quoted and resulted in a completed sale</td></tr>
+                            <tr><td><strong>Conversion Ratio</strong></td><td>Percentage of quoted dollars that converted to won revenue</td></tr>
+                            <tr><td><strong>Days to Close</strong></td><td>Number of days between quote sent and opportunity close</td></tr>
+                            <tr><td><strong>Quote Sent Date</strong></td><td>Timestamp when a formal quote was delivered to the prospect</td></tr>
+                            <tr><td><strong>Sales Velocity</strong></td><td>Speed at which deals move through pipeline to close</td></tr>
+                            <tr><td><strong>Win Rate</strong></td><td>Percentage of closed deals that were won (by count)</td></tr>
+                            <tr><td><strong>YoY</strong></td><td>Year-over-Year comparison of the same time period</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="guide-footer">
+                        <p>📧 For support or questions, contact your system administrator.</p>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End Guide Tab -->
     </div>
 
     <script>
@@ -2851,6 +3562,57 @@
             };
         }
 
+        // Get average conversion rate for a specific calendar month (1-12) across all years
+        // timingType: 'same', 'one', or 'two'
+        function getMonthSpecificRate(calendarMonth, timingType, owner = 'all') {
+            const dataToUse = owner === 'all' ? rawData : rawData.filter(row => row.owner === owner);
+            
+            // Group data by calendar month (ignoring year)
+            const monthStats = { totalQuoted: 0, converted: 0 };
+            
+            dataToUse.forEach(row => {
+                if (!row.quoteSentMonth) return;
+                const rowMonth = row.quoteSentMonth.getMonth() + 1; // 1-12
+                
+                if (rowMonth === calendarMonth) {
+                    monthStats.totalQuoted += row.amount;
+                    
+                    if (row.stage === 'Closed Won' && row.bookingTiming === timingType) {
+                        monthStats.converted += row.amount;
+                    }
+                }
+            });
+            
+            return monthStats.totalQuoted > 0 ? monthStats.converted / monthStats.totalQuoted : 0;
+        }
+
+        // Get month-specific rates for the calculator based on target month
+        function getMonthSpecificAverages(targetMonth, owner = 'all') {
+            // targetMonth is 1-12
+            // Same month rate: use target month's same-month rate
+            // +1 month rate: use previous month's +1 month rate (quotes sent in Dec close in Jan)
+            // +2 month rate: use 2-months-prior's +2 month rate (quotes sent in Nov close in Jan)
+            
+            const prevMonth1 = targetMonth === 1 ? 12 : targetMonth - 1;
+            const prevMonth2 = targetMonth <= 2 ? 12 + targetMonth - 2 : targetMonth - 2;
+            
+            return {
+                sameMonth: getMonthSpecificRate(targetMonth, 'same', owner),
+                oneMonth: getMonthSpecificRate(prevMonth1, 'one', owner),
+                twoMonth: getMonthSpecificRate(prevMonth2, 'two', owner),
+                // Store which months these rates come from for display
+                sameMonthName: getMonthName(targetMonth),
+                oneMonthName: getMonthName(prevMonth1),
+                twoMonthName: getMonthName(prevMonth2)
+            };
+        }
+
+        function getMonthName(monthNum) {
+            const months = ['', 'January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            return months[monthNum] || '';
+        }
+
         function getExistingQuotesForMonth(monthKey, owner = 'all') {
             // Get total quotes already sent in a given month, optionally filtered by owner
             let totalQuoted = 0;
@@ -2875,14 +3637,66 @@
 
         function updateCalculatorAverages() {
             const selectedOwner = document.getElementById('calcOwnerFilter').value;
-            const averages = getHistoricalAverages(selectedOwner);
-            document.getElementById('avgSameMonth').textContent = (averages.sameMonth * 100).toFixed(1) + '%';
-            document.getElementById('avgOneMonth').textContent = (averages.oneMonth * 100).toFixed(1) + '%';
-            document.getElementById('avgTwoMonth').textContent = (averages.twoMonth * 100).toFixed(1) + '%';
+            const targetMonthInput = document.getElementById('targetMonth').value;
             
-            // Update subtitle to show whose rates are being displayed
+            // If no target month selected, show overall averages
+            if (!targetMonthInput) {
+                const averages = getHistoricalAverages(selectedOwner);
+                const hasData = rawData.length > 0 && (averages.sameMonth > 0 || averages.oneMonth > 0 || averages.twoMonth > 0);
+                
+                if (hasData) {
+                    document.getElementById('avgSameMonth').textContent = (averages.sameMonth * 100).toFixed(1) + '%';
+                    document.getElementById('avgOneMonth').textContent = (averages.oneMonth * 100).toFixed(1) + '%';
+                    document.getElementById('avgTwoMonth').textContent = (averages.twoMonth * 100).toFixed(1) + '%';
+                } else {
+                    document.getElementById('avgSameMonth').textContent = 'No data';
+                    document.getElementById('avgOneMonth').textContent = 'No data';
+                    document.getElementById('avgTwoMonth').textContent = 'No data';
+                }
+                
+                const ownerName = selectedOwner === 'all' ? 'Team Average' : selectedOwner;
+                document.getElementById('ratesSubtitle').innerHTML = `Based on <strong>${ownerName}</strong>, select a target month to see month-specific rates:`;
+                
+                // Reset labels and descriptions to generic
+                document.getElementById('labelSameMonth').textContent = 'SAME MONTH';
+                document.getElementById('labelOneMonth').textContent = '+1 MONTH';
+                document.getElementById('labelTwoMonth').textContent = '+2 MONTHS';
+                document.getElementById('descSameMonth').textContent = 'Closes in the month quote was sent';
+                document.getElementById('descOneMonth').textContent = 'Closes the following month';
+                document.getElementById('descTwoMonth').textContent = 'Closes two months later';
+                return;
+            }
+            
+            // Get month-specific rates based on target month
+            const [targetYear, targetMonthNum] = targetMonthInput.split('-').map(Number);
+            const averages = getMonthSpecificAverages(targetMonthNum, selectedOwner);
+            const targetMonthName = getMonthName(targetMonthNum);
+            
+            const hasData = rawData.length > 0 && (averages.sameMonth > 0 || averages.oneMonth > 0 || averages.twoMonth > 0);
+            
+            if (hasData) {
+                document.getElementById('avgSameMonth').textContent = (averages.sameMonth * 100).toFixed(1) + '%';
+                document.getElementById('avgOneMonth').textContent = (averages.oneMonth * 100).toFixed(1) + '%';
+                document.getElementById('avgTwoMonth').textContent = (averages.twoMonth * 100).toFixed(1) + '%';
+            } else {
+                document.getElementById('avgSameMonth').textContent = 'No data';
+                document.getElementById('avgOneMonth').textContent = 'No data';
+                document.getElementById('avgTwoMonth').textContent = 'No data';
+            }
+            
+            // Update labels to show which months the rates are from
+            document.getElementById('labelSameMonth').textContent = `${averages.sameMonthName.toUpperCase()} → ${targetMonthName.toUpperCase()}`;
+            document.getElementById('labelOneMonth').textContent = `${averages.oneMonthName.toUpperCase()} → ${targetMonthName.toUpperCase()}`;
+            document.getElementById('labelTwoMonth').textContent = `${averages.twoMonthName.toUpperCase()} → ${targetMonthName.toUpperCase()}`;
+            
+            // Update descriptions
+            document.getElementById('descSameMonth').textContent = `Avg same-month close rate for ${averages.sameMonthName}`;
+            document.getElementById('descOneMonth').textContent = `Avg +1 month close rate for ${averages.oneMonthName}`;
+            document.getElementById('descTwoMonth').textContent = `Avg +2 months close rate for ${averages.twoMonthName}`;
+            
+            // Update subtitle
             const ownerName = selectedOwner === 'all' ? 'Team Average' : selectedOwner;
-            document.getElementById('ratesSubtitle').innerHTML = `Based on <strong>${ownerName}</strong>, these are the conversion rates by timing:`;
+            document.getElementById('ratesSubtitle').innerHTML = `Based on <strong>${ownerName}</strong> historical rates for closing in <strong>${targetMonthName}</strong>:`;
         }
 
         function populateCalcOwnerFilter() {
@@ -2908,6 +3722,33 @@
             }
 
             const [targetYear, targetMonthNum] = targetMonthInput.split('-').map(Number);
+            
+            // Use month-specific historical rates for more accurate projections
+            const averages = getMonthSpecificAverages(targetMonthNum, selectedOwner);
+            
+            // Check if we have valid historical data to make calculations
+            const totalConversionRate = averages.sameMonth + averages.oneMonth + averages.twoMonth;
+            if (totalConversionRate <= 0 || rawData.length === 0) {
+                document.getElementById('resultsContent').innerHTML = `
+                    <div class="result-summary" style="background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b;">
+                        <div class="goal-text" style="color: #ff6b6b;">⚠️ Insufficient Historical Data</div>
+                        <div style="color: var(--text-secondary); margin-top: 12px; font-size: 0.95rem;">
+                            To use the Quote Calculator, you need to first load your CSV data on the Dashboard tab. 
+                            The calculator uses your historical conversion rates to make projections.
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <button onclick="document.querySelector('[data-tab=dashboard]').click();" 
+                                    style="background: var(--gradient-1); border: none; color: var(--bg-primary); 
+                                           padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                Go to Dashboard & Load Data
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('calculatorResults').style.display = 'block';
+                return;
+            }
+
             const targetMonthKey = getMonthKeyFromDate(targetYear, targetMonthNum - 1);
             
             // Get month keys for previous months
@@ -2919,8 +3760,6 @@
                 targetMonthNum <= 2 ? targetYear - 1 : targetYear,
                 targetMonthNum <= 2 ? 12 - (2 - targetMonthNum) - 1 : targetMonthNum - 3
             );
-
-            const averages = getHistoricalAverages(selectedOwner);
             
             // Get existing quotes for each month (filtered by owner if specified)
             const existingTargetMonth = getExistingQuotesForMonth(targetMonthKey, selectedOwner);
@@ -2969,7 +3808,8 @@
                     </div>
                 `;
             } else {
-                const neededPrev2 = remainingGoal > 0 ? remainingGoal / (averages.sameMonth + averages.oneMonth + averages.twoMonth) : 0;
+                const neededPrev2 = remainingGoal > 0 && totalConversionRate > 0 ? remainingGoal / totalConversionRate : 0;
+                const contributionPrev2 = neededPrev2 * averages.twoMonth;
                 resultsHtml += `
                     <div class="result-month needed">
                         <div>
@@ -2979,7 +3819,7 @@
                         <div class="month-arrow">→</div>
                         <div class="quote-needed">
                             <div class="quote-amount needed">${formatCurrency(neededPrev2)}</div>
-                            <div class="quote-label">Contributes ${formatCurrency(neededPrev2 * averages.twoMonth)} (${(averages.twoMonth * 100).toFixed(1)}%)</div>
+                            <div class="quote-label">Contributes ${formatCurrency(contributionPrev2)} (${(averages.twoMonth * 100).toFixed(1)}%)</div>
                         </div>
                     </div>
                 `;
@@ -3001,7 +3841,9 @@
                     </div>
                 `;
             } else {
-                const neededPrev1 = remainingGoal > 0 ? remainingGoal / (averages.sameMonth + averages.oneMonth + (hasPrev2Data ? 0 : averages.twoMonth)) : 0;
+                const divisor1 = averages.sameMonth + averages.oneMonth + (hasPrev2Data ? 0 : averages.twoMonth);
+                const neededPrev1 = remainingGoal > 0 && divisor1 > 0 ? remainingGoal / divisor1 : 0;
+                const contributionPrev1 = neededPrev1 * averages.oneMonth;
                 resultsHtml += `
                     <div class="result-month needed">
                         <div>
@@ -3011,7 +3853,7 @@
                         <div class="month-arrow">→</div>
                         <div class="quote-needed">
                             <div class="quote-amount needed">${formatCurrency(neededPrev1)}</div>
-                            <div class="quote-label">Contributes ${formatCurrency(neededPrev1 * averages.oneMonth)} (${(averages.oneMonth * 100).toFixed(1)}%)</div>
+                            <div class="quote-label">Contributes ${formatCurrency(contributionPrev1)} (${(averages.oneMonth * 100).toFixed(1)}%)</div>
                         </div>
                     </div>
                 `;
@@ -3023,7 +3865,7 @@
             if (hasTargetMonthData) {
                 const stillNeeded = adjustedRemainingGoal - contributionFromSame;
                 if (stillNeeded > 0) {
-                    const additionalQuotesNeeded = stillNeeded / averages.sameMonth;
+                    const additionalQuotesNeeded = averages.sameMonth > 0 ? stillNeeded / averages.sameMonth : 0;
                     resultsHtml += `
                         <div class="result-month existing">
                             <div>
@@ -3064,7 +3906,8 @@
                     `;
                 }
             } else {
-                const quotesNeededTargetMonth = adjustedRemainingGoal > 0 ? adjustedRemainingGoal / averages.sameMonth : 0;
+                const quotesNeededTargetMonth = adjustedRemainingGoal > 0 && averages.sameMonth > 0 ? adjustedRemainingGoal / averages.sameMonth : 0;
+                const contributionTarget = quotesNeededTargetMonth * averages.sameMonth;
                 resultsHtml += `
                     <div class="result-month needed">
                         <div>
@@ -3074,7 +3917,7 @@
                         <div class="month-arrow">→</div>
                         <div class="quote-needed">
                             <div class="quote-amount needed">${formatCurrency(quotesNeededTargetMonth)}</div>
-                            <div class="quote-label">Contributes ${formatCurrency(quotesNeededTargetMonth * averages.sameMonth)} (${(averages.sameMonth * 100).toFixed(1)}%)</div>
+                            <div class="quote-label">Contributes ${formatCurrency(contributionTarget)} (${(averages.sameMonth * 100).toFixed(1)}%)</div>
                         </div>
                     </div>
                 `;
@@ -3094,11 +3937,11 @@
                     </div>
                 `;
             } else {
-                const totalNeeded = remainingGoal / averages.sameMonth;
+                const totalNeeded = averages.sameMonth > 0 ? remainingGoal / averages.sameMonth : remainingGoal;
                 resultsHtml += `
                     <div class="total-needed-box">
                         <div class="label">Total Additional Quotes Needed</div>
-                        <div class="amount">${formatCurrency(remainingGoal / averages.sameMonth)}</div>
+                        <div class="amount">${formatCurrency(totalNeeded)}</div>
                         <div style="color: rgba(0,0,0,0.6); margin-top: 8px;">
                             Expected from existing: ${formatCurrency(totalExistingContribution)} | Gap: ${formatCurrency(remainingGoal)}
                         </div>
@@ -3140,6 +3983,13 @@
         document.getElementById('calcOwnerFilter').addEventListener('change', function() {
             updateCalculatorAverages();
             // Hide previous results when owner changes
+            document.getElementById('calculatorResults').style.display = 'none';
+        });
+
+        // Calculator target month change - update averages display with month-specific rates
+        document.getElementById('targetMonth').addEventListener('change', function() {
+            updateCalculatorAverages();
+            // Hide previous results when month changes
             document.getElementById('calculatorResults').style.display = 'none';
         });
 
