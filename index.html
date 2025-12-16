@@ -1,0 +1,3247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote Conversion Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-secondary: #121820;
+            --bg-card: #1a2230;
+            --bg-card-hover: #232d3f;
+            --accent-primary: #00d4aa;
+            --accent-secondary: #00a8ff;
+            --accent-warning: #ffb347;
+            --accent-danger: #ff6b6b;
+            --accent-purple: #a855f7;
+            --text-primary: #f0f4f8;
+            --text-secondary: #8899a6;
+            --text-muted: #5c6b7a;
+            --border-color: #2a3544;
+            --gradient-1: linear-gradient(135deg, #00d4aa 0%, #00a8ff 100%);
+            --gradient-2: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            --gradient-3: linear-gradient(135deg, #ffb347 0%, #ff6b6b 100%);
+            --shadow-glow: 0 0 40px rgba(0, 212, 170, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 168, 255, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dashboard {
+            position: relative;
+            z-index: 1;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        select, input[type="file"] {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        select:hover, select:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-upload-btn {
+            background: var(--gradient-1);
+            color: var(--bg-primary);
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 20, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .summary-card.primary::before { background: var(--gradient-1); }
+        .summary-card.secondary::before { background: var(--gradient-2); }
+        .summary-card.warning::before { background: var(--gradient-3); }
+        .summary-card.info::before { background: linear-gradient(135deg, #00a8ff 0%, #0066cc 100%); }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .summary-card .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .summary-card .value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .summary-card.primary .value { color: var(--accent-primary); }
+        .summary-card.secondary .value { color: var(--accent-purple); }
+        .summary-card.warning .value { color: var(--accent-warning); }
+        .summary-card.info .value { color: var(--accent-secondary); }
+
+        .summary-card .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Chart Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-card h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+        }
+
+        .chart-container.tall {
+            height: 400px;
+        }
+
+        /* Booking Timing Breakdown */
+        .timing-breakdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .timing-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .timing-item:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.02);
+        }
+
+        .timing-item .timing-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .timing-item .timing-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .timing-item .timing-count {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .timing-item.same-month .timing-value { color: var(--accent-primary); }
+        .timing-item.one-month .timing-value { color: var(--accent-secondary); }
+        .timing-item.two-month .timing-value { color: var(--accent-warning); }
+        .timing-item.three-plus .timing-value { color: var(--accent-danger); }
+
+        /* Owner Table */
+        .owner-table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .owner-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .owner-table th {
+            background: var(--bg-secondary);
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+        }
+
+        .owner-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+
+        .owner-table tr:hover td {
+            background: var(--bg-card-hover);
+        }
+
+        .owner-table .owner-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .owner-table .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-primary);
+        }
+
+        .owner-table .stat-percent {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .owner-table .win-rate { color: var(--accent-primary); }
+
+        /* Monthly Timing Table specific styles */
+        .monthly-timing-table td.stat-percent {
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .monthly-timing-table th {
+            text-align: center;
+        }
+        
+        .monthly-timing-table th:first-child,
+        .monthly-timing-table td:first-child {
+            text-align: left;
+        }
+        
+        .monthly-timing-table td.stat-value {
+            text-align: center;
+        }
+        
+        .monthly-timing-table tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+        .owner-table .lose-rate { color: var(--accent-danger); }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .instructions-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-top: 32px;
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        .instructions-box h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions-box h4::before {
+            content: '📋';
+        }
+
+        .instruction-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .instruction-steps li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .instruction-steps li:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--bg-primary);
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding-top: 3px;
+        }
+
+        .step-text strong {
+            color: var(--text-primary);
+        }
+
+        .sf-link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .sf-link:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .controls {
+                width: 100%;
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .timing-breakdown {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        .tab-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 14px 28px;
+            border-radius: 12px 12px 0 0;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--gradient-1);
+            color: var(--bg-primary);
+            border-color: transparent;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Calculator Styles */
+        .calculator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .calculator-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .calculator-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .calculator-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .calc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .calc-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calc-card h3::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        .calc-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .calc-input-group {
+            margin-bottom: 20px;
+        }
+
+        .calc-input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .calc-input-group input[type="month"],
+        .calc-input-group input[type="number"],
+        .calc-input-group select {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .calc-input-group select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .calc-input-group input:focus,
+        .calc-input-group select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15);
+        }
+
+        .currency-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-input span {
+            position: absolute;
+            left: 16px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .currency-input input {
+            padding-left: 36px !important;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: var(--gradient-1);
+            border: none;
+            color: var(--bg-primary);
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .rate-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .rate-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .rate-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .rate-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+        }
+
+        .rate-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .results-card {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 168, 255, 0.1) 100%);
+            border: 2px solid var(--accent-primary);
+        }
+
+        .result-summary {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .result-summary .goal-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-summary .goal-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-primary);
+        }
+
+        .result-breakdown {
+            display: grid;
+            gap: 16px;
+        }
+
+        .result-month {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .result-month.existing {
+            border-left: 4px solid var(--accent-secondary);
+        }
+
+        .result-month.needed {
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .result-month.gap {
+            border-left: 4px solid var(--accent-danger);
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .month-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .month-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .month-arrow {
+            color: var(--text-muted);
+            font-size: 1.5rem;
+        }
+
+        .month-contribution {
+            text-align: right;
+        }
+
+        .contribution-amount {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-primary);
+        }
+
+        .contribution-rate {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .quote-needed {
+            text-align: right;
+        }
+
+        .quote-amount {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .quote-amount.existing {
+            color: var(--accent-secondary);
+        }
+
+        .quote-amount.needed {
+            color: var(--accent-primary);
+        }
+
+        .quote-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .info-content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .info-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--bg-primary);
+            flex-shrink: 0;
+        }
+
+        .info-text strong {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .info-text p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .total-needed-box {
+            background: var(--gradient-1);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .total-needed-box .label {
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .total-needed-box .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--bg-primary);
+            margin-top: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            .rate-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .view-toggle button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 20px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .view-toggle button.active {
+            background: var(--gradient-1);
+            color: var(--bg-primary);
+        }
+
+        .view-toggle button:hover:not(.active) {
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+        }
+
+        /* Date Range Filter */
+        .date-range {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .date-range input[type="month"] {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .date-range span {
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Processing data...</div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="tab-btn" data-tab="calculator">🧮 Quote Calculator</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboardTab" class="tab-content active">
+        <header>
+            <div class="header-left">
+                <h1>Quote Conversion Analytics</h1>
+                <p>Track quote performance, conversion rates, and booking timing trends</p>
+            </div>
+            <div class="controls">
+                <div class="filter-group">
+                    <label>View</label>
+                    <div class="view-toggle">
+                        <button class="active" data-view="team">Team</button>
+                        <button data-view="individual">Individual</button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Opportunity Owner</label>
+                    <select id="ownerFilter">
+                        <option value="all">All Team Members</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Date Range</label>
+                    <div class="date-range">
+                        <input type="month" id="startDate">
+                        <span>to</span>
+                        <input type="month" id="endDate">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Data Source</label>
+                    <div class="file-upload">
+                        <div class="file-upload-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Load CSV
+                        </div>
+                        <input type="file" id="csvFile" accept=".csv">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div id="emptyState" class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            <h3>Load Your Quote Data</h3>
+            <p>Upload your CSV file to analyze quote conversion rates, booking timing, and team performance metrics.</p>
+            
+            <div class="instructions-box">
+                <h4>How to Get Your Data</h4>
+                <ol class="instruction-steps">
+                    <li>
+                        <span class="step-number">1</span>
+                        <span class="step-text">Go to the Salesforce report: <a href="https://sundaycool.lightning.force.com/lightning/r/Report/00O4w000008Pw8FEAS/view" target="_blank" class="sf-link">Quote Conversion Report ↗</a></span>
+                    </li>
+                    <li>
+                        <span class="step-number">2</span>
+                        <span class="step-text">Click <strong>Export</strong> and select <strong>"Details Only"</strong></span>
+                    </li>
+                    <li>
+                        <span class="step-number">3</span>
+                        <span class="step-text">Choose <strong>.csv</strong> as the format</span>
+                    </li>
+                    <li>
+                        <span class="step-number">4</span>
+                        <span class="step-text">Upload the downloaded CSV file using the <strong>Load CSV</strong> button above</span>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card primary">
+                    <div class="label">Total Quotes</div>
+                    <div class="value" id="totalQuotes">0</div>
+                    <div class="subtitle">Quotes sent in period</div>
+                </div>
+                <div class="summary-card secondary">
+                    <div class="label">Win Rate</div>
+                    <div class="value" id="winRate">0%</div>
+                    <div class="subtitle" id="winRateSub">0 won of 0 closed</div>
+                </div>
+                <div class="summary-card warning">
+                    <div class="label">Total Value Won</div>
+                    <div class="value" id="totalValue">$0</div>
+                    <div class="subtitle" id="avgDealSize">Avg deal: $0</div>
+                </div>
+                <div class="summary-card info">
+                    <div class="label">Total Conversion Ratio</div>
+                    <div class="value" id="totalConversionRatio">0%</div>
+                    <div class="subtitle" id="totalConversionSub">$ won / $ quoted</div>
+                </div>
+                <div class="summary-card primary">
+                    <div class="label">Avg Days (Won)</div>
+                    <div class="value" id="avgDaysWon">0</div>
+                    <div class="subtitle" id="avgDaysWonSub">Closed Won deals</div>
+                </div>
+                <div class="summary-card warning">
+                    <div class="label">Avg Days (Lost)</div>
+                    <div class="value" id="avgDaysLost">0</div>
+                    <div class="subtitle" id="avgDaysLostSub">Closed Lost deals</div>
+                </div>
+            </div>
+
+            <!-- Booking Timing Analysis -->
+            <div class="chart-card full-width">
+                <h3>Booking Timing Breakdown</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">
+                    How quickly are quotes converting to closed won deals? Based on the time between quote sent and close date.
+                </p>
+                <div class="timing-breakdown">
+                    <div class="timing-item same-month">
+                        <div class="timing-label">Same Month</div>
+                        <div class="timing-value" id="sameMonthPct">0%</div>
+                        <div class="timing-count" id="sameMonthCount">0 deals</div>
+                    </div>
+                    <div class="timing-item one-month">
+                        <div class="timing-label">+1 Month</div>
+                        <div class="timing-value" id="oneMonthPct">0%</div>
+                        <div class="timing-count" id="oneMonthCount">0 deals</div>
+                    </div>
+                    <div class="timing-item two-month">
+                        <div class="timing-label">+2 Months</div>
+                        <div class="timing-value" id="twoMonthPct">0%</div>
+                        <div class="timing-count" id="twoMonthCount">0 deals</div>
+                    </div>
+                    <div class="timing-item three-plus">
+                        <div class="timing-label">+3 Months</div>
+                        <div class="timing-value" id="threePlusPct">0%</div>
+                        <div class="timing-count" id="threePlusCount">0 deals</div>
+                    </div>
+                </div>
+                <div class="chart-container" style="margin-top: 30px;">
+                    <canvas id="timingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Stage Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="stageChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Booking Timing by Month</h3>
+                    <div class="chart-container">
+                        <canvas id="timingTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Booking Timing Table -->
+            <div class="chart-card full-width">
+                <h3>Monthly Booking Timing Breakdown</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">
+                    Percentage of closed won quotes by how quickly they converted, broken down by the month the quote was sent.
+                </p>
+                <div class="owner-table-container">
+                    <table class="owner-table monthly-timing-table" id="monthlyTimingTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Total Quoted</th>
+                                <th>Total Ratio</th>
+                                <th>Days (Won)</th>
+                                <th>Days (Lost)</th>
+                                <th>Same Month</th>
+                                <th>2nd Month</th>
+                                <th>3rd Month</th>
+                                <th>4th+ Month</th>
+                                <th>Pending $</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyTimingTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Monthly Trend -->
+            <div class="chart-card full-width">
+                <h3>Monthly Quote Volume & Win Rate Trend</h3>
+                <div class="chart-container tall">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Year-over-Year Comparison -->
+            <div class="chart-card full-width">
+                <h3>Year-over-Year Comparison by Month</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">
+                    Compare the same month across different years to identify seasonal trends and year-over-year performance.
+                </p>
+                <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div class="filter-group">
+                        <label>Metric</label>
+                        <select id="yoyMetric">
+                            <option value="totalRatio">Total Conversion Ratio</option>
+                            <option value="sameMonth">Same Month %</option>
+                            <option value="avgDaysWon">Avg Days to Close (Won)</option>
+                            <option value="avgDaysLost">Avg Days to Close (Lost)</option>
+                            <option value="totalQuoted">Total Quoted $</option>
+                            <option value="totalWon">Total Won $</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container tall">
+                    <canvas id="yoyChart"></canvas>
+                </div>
+                <div class="owner-table-container" style="margin-top: 30px;">
+                    <table class="owner-table monthly-timing-table" id="yoyTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th id="yoyYear1">2023</th>
+                                <th id="yoyYear2">2024</th>
+                                <th id="yoyYear3">2025</th>
+                                <th>Avg</th>
+                            </tr>
+                        </thead>
+                        <tbody id="yoyTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Days to Close Analysis -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Avg Days to Close by Month</h3>
+                    <div class="chart-container">
+                        <canvas id="daysToCloseChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Avg Days to Close by Owner</h3>
+                    <div class="chart-container">
+                        <canvas id="daysToCloseByOwnerChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Value Analysis -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Monthly Revenue (Closed Won)</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Deal Size Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="dealSizeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Performance Table -->
+            <div class="chart-card full-width">
+                <h3>Team Performance Breakdown</h3>
+                <div class="owner-table-container">
+                    <table class="owner-table" id="ownerTable">
+                        <thead>
+                            <tr>
+                                <th>Owner</th>
+                                <th>Total Quoted $</th>
+                                <th>Closed Won</th>
+                                <th>Closed Lost</th>
+                                <th>Win Rate</th>
+                                <th>Value Won</th>
+                                <th>Days (Won)</th>
+                                <th>Days (Lost)</th>
+                                <th>Same Month %</th>
+                                <th>+1 Month %</th>
+                                <th>+2 Month %</th>
+                                <th>+3+ Month %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ownerTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div> <!-- End Dashboard Tab -->
+
+        <!-- Quote Calculator Tab -->
+        <div id="calculatorTab" class="tab-content">
+            <div class="calculator-container">
+                <div class="calculator-header">
+                    <h1>🧮 Quote Calculator</h1>
+                    <p>Calculate the quoting activity needed to achieve your sales goals</p>
+                </div>
+
+                <div class="calculator-grid">
+                    <!-- Input Section -->
+                    <div class="calc-card input-card">
+                        <h3>Set Your Goal</h3>
+                        <div class="calc-input-group">
+                            <label>Sales Rep</label>
+                            <select id="calcOwnerFilter">
+                                <option value="all">All Team Members (Team Average)</option>
+                            </select>
+                        </div>
+                        <div class="calc-input-group">
+                            <label>Target Month</label>
+                            <input type="month" id="targetMonth" />
+                        </div>
+                        <div class="calc-input-group">
+                            <label>Sales Goal (Closed Won $)</label>
+                            <div class="currency-input">
+                                <span>$</span>
+                                <input type="number" id="salesGoal" placeholder="500000" min="0" step="1000" />
+                            </div>
+                        </div>
+                        <button class="calculate-btn" id="calculateBtn">
+                            <span>Calculate Required Quotes</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Historical Averages -->
+                    <div class="calc-card averages-card">
+                        <h3>Historical Conversion Rates</h3>
+                        <p class="calc-subtitle" id="ratesSubtitle">Based on <strong>Team Average</strong>, these are the conversion rates by timing:</p>
+                        <div class="rate-grid">
+                            <div class="rate-item">
+                                <div class="rate-label">Same Month</div>
+                                <div class="rate-value" id="avgSameMonth">--%</div>
+                                <div class="rate-desc">Closes in the month quote was sent</div>
+                            </div>
+                            <div class="rate-item">
+                                <div class="rate-label">+1 Month</div>
+                                <div class="rate-value" id="avgOneMonth">--%</div>
+                                <div class="rate-desc">Closes the following month</div>
+                            </div>
+                            <div class="rate-item">
+                                <div class="rate-label">+2 Months</div>
+                                <div class="rate-value" id="avgTwoMonth">--%</div>
+                                <div class="rate-desc">Closes two months later</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="calc-card results-card" id="calculatorResults" style="display: none;">
+                    <h3>📋 Quoting Plan to Achieve Your Goal</h3>
+                    <div id="resultsContent"></div>
+                </div>
+
+                <!-- How It Works -->
+                <div class="calc-card info-card">
+                    <h3>How This Calculator Works</h3>
+                    <div class="info-content">
+                        <div class="info-item">
+                            <div class="info-icon">1</div>
+                            <div class="info-text">
+                                <strong>Analyzes Your Historical Data</strong>
+                                <p>Uses your actual conversion rates from past months to predict future performance.</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">2</div>
+                            <div class="info-text">
+                                <strong>Accounts for Existing Pipeline</strong>
+                                <p>If you've already sent quotes in previous months, those expected conversions are factored in.</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">3</div>
+                            <div class="info-text">
+                                <strong>Calculates Required Activity</strong>
+                                <p>Works backwards from your goal to tell you exactly how much quoting activity is needed.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End Calculator Tab -->
+    </div>
+
+    <script>
+        // Global state
+        let rawData = [];
+        let filteredData = [];
+        let charts = {};
+
+        // Chart.js default configuration
+        Chart.defaults.color = '#8899a6';
+        Chart.defaults.borderColor = '#2a3544';
+        Chart.defaults.font.family = "'Outfit', sans-serif";
+
+        // Utility functions
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            // Handle "M/D/YYYY, H:MM AM/PM" format
+            const parts = dateStr.split(',');
+            if (parts.length >= 1) {
+                const datePart = parts[0].trim();
+                const dateParts = datePart.split('/');
+                if (dateParts.length >= 3) {
+                    const month = parseInt(dateParts[0], 10);
+                    const day = parseInt(dateParts[1], 10);
+                    const year = parseInt(dateParts[2], 10);
+                    if (month && day && year) {
+                        return new Date(year, month - 1, day);
+                    }
+                }
+            }
+            return null;
+        }
+
+        function parseCloseMonth(dateStr) {
+            if (!dateStr) return null;
+            // Handle "M/D/YYYY" format where D is always 1
+            const parts = dateStr.split('/');
+            if (parts.length >= 3) {
+                const month = parseInt(parts[0], 10);
+                const year = parseInt(parts[2], 10);
+                if (month && year) {
+                    return new Date(year, month - 1, 1);
+                }
+            }
+            return null;
+        }
+
+        function parseCloseDate(dateStr) {
+            if (!dateStr) return null;
+            // Handle "M/D/YYYY" format for actual close date
+            const parts = dateStr.split('/');
+            if (parts.length >= 3) {
+                const month = parseInt(parts[0], 10);
+                const day = parseInt(parts[1], 10);
+                const year = parseInt(parts[2], 10);
+                if (month && day && year) {
+                    return new Date(year, month - 1, day);
+                }
+            }
+            return null;
+        }
+
+        function getMonthDiff(date1, date2) {
+            if (!date1 || !date2) return null;
+            const year1 = date1.getFullYear();
+            const month1 = date1.getMonth();
+            const year2 = date2.getFullYear();
+            const month2 = date2.getMonth();
+            return (year2 - year1) * 12 + (month2 - month1);
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US').format(value);
+        }
+
+        function formatPercent(value) {
+            return (value * 100).toFixed(1) + '%';
+        }
+
+        function getMonthKey(date) {
+            if (!date) return null;
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function formatMonthLabel(monthKey) {
+            const [year, month] = monthKey.split('-');
+            const date = new Date(year, month - 1, 1);
+            return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        }
+
+        // Data processing
+        function processData(data) {
+            return data.map(row => {
+                const quoteSentDate = parseDate(row['Quote sent TImestamp 2']);
+                const closeMonth = parseCloseMonth(row['Close Month']);
+                const closeDate = parseCloseDate(row['Close Date']); // Actual close date
+                const quoteSentMonth = quoteSentDate ? new Date(quoteSentDate.getFullYear(), quoteSentDate.getMonth(), 1) : null;
+                
+                let bookingTiming = null;
+                let daysToClose = null;
+                
+                // Calculate booking timing for Closed Won deals (uses Close Month for timing buckets)
+                if (quoteSentMonth && closeMonth && row['Stage'] === 'Closed Won') {
+                    const monthDiff = getMonthDiff(quoteSentMonth, closeMonth);
+                    // Handle timing categories (treat negative as same month - data entry issue)
+                    if (monthDiff <= 0) bookingTiming = 'same';
+                    else if (monthDiff === 1) bookingTiming = 'one';
+                    else if (monthDiff === 2) bookingTiming = 'two';
+                    else if (monthDiff >= 3) bookingTiming = 'three_plus';
+                }
+                
+                // Calculate days to close for BOTH Closed Won and Closed Lost (uses actual Close Date)
+                if (quoteSentDate && closeDate && (row['Stage'] === 'Closed Won' || row['Stage'] === 'Closed Lost')) {
+                    const timeDiff = closeDate.getTime() - quoteSentDate.getTime();
+                    daysToClose = Math.max(0, Math.round(timeDiff / (1000 * 60 * 60 * 24)));
+                }
+
+                return {
+                    amount: parseFloat(row['Amount']) || 0,
+                    quoteSentDate,
+                    quoteSentMonth,
+                    quoteSentMonthKey: getMonthKey(quoteSentDate),
+                    stage: row['Stage'],
+                    owner: row['Opportunity Owner'],
+                    closeMonth,
+                    closeMonthKey: getMonthKey(closeMonth),
+                    closeDate,
+                    bookingTiming,
+                    daysToClose
+                };
+            }).filter(row => row.quoteSentDate); // Filter out rows without valid quote sent date
+        }
+
+        function filterData() {
+            const ownerFilter = document.getElementById('ownerFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            filteredData = rawData.filter(row => {
+                // Owner filter
+                if (ownerFilter !== 'all' && row.owner !== ownerFilter) return false;
+
+                // Date range filter
+                if (startDate && row.quoteSentMonthKey < startDate) return false;
+                if (endDate && row.quoteSentMonthKey > endDate) return false;
+
+                return true;
+            });
+
+            updateDashboard();
+        }
+
+        function populateOwnerFilter() {
+            const owners = [...new Set(rawData.map(r => r.owner))].sort();
+            const select = document.getElementById('ownerFilter');
+            select.innerHTML = '<option value="all">All Team Members</option>';
+            owners.forEach(owner => {
+                const option = document.createElement('option');
+                option.value = owner;
+                option.textContent = owner;
+                select.appendChild(option);
+            });
+        }
+
+        function setDateRange() {
+            const months = rawData.map(r => r.quoteSentMonthKey).filter(Boolean).sort();
+            if (months.length > 0) {
+                document.getElementById('startDate').value = months[0];
+                document.getElementById('endDate').value = months[months.length - 1];
+            }
+        }
+
+        // Dashboard updates
+        function updateSummaryCards() {
+            const totalQuotes = filteredData.length;
+            const totalQuotedValue = filteredData.reduce((sum, r) => sum + r.amount, 0);
+            const closedWon = filteredData.filter(r => r.stage === 'Closed Won');
+            const closedLost = filteredData.filter(r => r.stage === 'Closed Lost');
+            const totalClosed = closedWon.length + closedLost.length;
+            const winRate = totalClosed > 0 ? closedWon.length / totalClosed : 0;
+            const totalWonValue = closedWon.reduce((sum, r) => sum + r.amount, 0);
+            const avgDeal = closedWon.length > 0 ? totalWonValue / closedWon.length : 0;
+            
+            // Total Conversion Ratio = $ Won / $ Quoted
+            const totalConversionRatio = totalQuotedValue > 0 ? totalWonValue / totalQuotedValue : 0;
+            
+            // Average Days to Close - Separate for Won and Lost
+            const wonDealsWithDays = filteredData.filter(r => 
+                r.stage === 'Closed Won' && r.daysToClose !== null && r.daysToClose >= 0
+            );
+            const lostDealsWithDays = filteredData.filter(r => 
+                r.stage === 'Closed Lost' && r.daysToClose !== null && r.daysToClose >= 0
+            );
+            const avgDaysWon = wonDealsWithDays.length > 0 
+                ? wonDealsWithDays.reduce((sum, r) => sum + r.daysToClose, 0) / wonDealsWithDays.length 
+                : 0;
+            const avgDaysLost = lostDealsWithDays.length > 0 
+                ? lostDealsWithDays.reduce((sum, r) => sum + r.daysToClose, 0) / lostDealsWithDays.length 
+                : 0;
+
+            document.getElementById('totalQuotes').textContent = formatNumber(totalQuotes);
+            document.getElementById('winRate').textContent = formatPercent(winRate);
+            document.getElementById('winRateSub').textContent = `${formatNumber(closedWon.length)} won of ${formatNumber(totalClosed)} closed`;
+            document.getElementById('totalValue').textContent = formatCurrency(totalWonValue);
+            document.getElementById('avgDealSize').textContent = `Avg deal: ${formatCurrency(avgDeal)}`;
+            document.getElementById('totalConversionRatio').textContent = formatPercent(totalConversionRatio);
+            document.getElementById('totalConversionSub').textContent = `${formatCurrency(totalWonValue)} / ${formatCurrency(totalQuotedValue)}`;
+            document.getElementById('avgDaysWon').textContent = Math.round(avgDaysWon);
+            document.getElementById('avgDaysWonSub').textContent = `${formatNumber(wonDealsWithDays.length)} deals`;
+            document.getElementById('avgDaysLost').textContent = Math.round(avgDaysLost);
+            document.getElementById('avgDaysLostSub').textContent = `${formatNumber(lostDealsWithDays.length)} deals`;
+        }
+
+        function updateBookingTiming() {
+            // Calculate based on DOLLAR VALUE, not count
+            // Formula: $ Closed Won in timing bucket / $ Total Quoted
+            const totalQuotedValue = filteredData.reduce((sum, r) => sum + r.amount, 0);
+            const closedWon = filteredData.filter(r => r.stage === 'Closed Won' && r.bookingTiming);
+
+            const sameValue = closedWon.filter(r => r.bookingTiming === 'same').reduce((sum, r) => sum + r.amount, 0);
+            const oneValue = closedWon.filter(r => r.bookingTiming === 'one').reduce((sum, r) => sum + r.amount, 0);
+            const twoValue = closedWon.filter(r => r.bookingTiming === 'two').reduce((sum, r) => sum + r.amount, 0);
+            const threePlusValue = closedWon.filter(r => r.bookingTiming === 'three_plus').reduce((sum, r) => sum + r.amount, 0);
+
+            // Counts for display
+            const sameCount = closedWon.filter(r => r.bookingTiming === 'same').length;
+            const oneCount = closedWon.filter(r => r.bookingTiming === 'one').length;
+            const twoCount = closedWon.filter(r => r.bookingTiming === 'two').length;
+            const threePlusCount = closedWon.filter(r => r.bookingTiming === 'three_plus').length;
+
+            document.getElementById('sameMonthPct').textContent = totalQuotedValue > 0 ? formatPercent(sameValue / totalQuotedValue) : '0%';
+            document.getElementById('sameMonthCount').textContent = `${formatCurrency(sameValue)}`;
+            document.getElementById('oneMonthPct').textContent = totalQuotedValue > 0 ? formatPercent(oneValue / totalQuotedValue) : '0%';
+            document.getElementById('oneMonthCount').textContent = `${formatCurrency(oneValue)}`;
+            document.getElementById('twoMonthPct').textContent = totalQuotedValue > 0 ? formatPercent(twoValue / totalQuotedValue) : '0%';
+            document.getElementById('twoMonthCount').textContent = `${formatCurrency(twoValue)}`;
+            document.getElementById('threePlusPct').textContent = totalQuotedValue > 0 ? formatPercent(threePlusValue / totalQuotedValue) : '0%';
+            document.getElementById('threePlusCount').textContent = `${formatCurrency(threePlusValue)}`;
+
+            // Update timing donut chart with dollar values
+            updateTimingChart([sameValue, oneValue, twoValue, threePlusValue]);
+        }
+
+        function updateTimingChart(data) {
+            const ctx = document.getElementById('timingChart').getContext('2d');
+            
+            if (charts.timing) charts.timing.destroy();
+            
+            charts.timing = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Same Month', '+1 Month', '+2 Months', '+3 Months'],
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#00d4aa', '#00a8ff', '#ffb347', '#ff6b6b'],
+                        borderColor: '#1a2230',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        function updateStageChart() {
+            const stages = {};
+            filteredData.forEach(row => {
+                stages[row.stage] = (stages[row.stage] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('stageChart').getContext('2d');
+            
+            if (charts.stage) charts.stage.destroy();
+
+            const stageColors = {
+                'Closed Won': '#00d4aa',
+                'Closed Lost': '#ff6b6b',
+                'Quote Sent': '#00a8ff',
+                'Production Schedule/Quote Approval': '#a855f7',
+                'Needs Quoted': '#ffb347',
+                'Lead In': '#ec4899'
+            };
+
+            charts.stage = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(stages),
+                    datasets: [{
+                        data: Object.values(stages),
+                        backgroundColor: Object.keys(stages).map(s => stageColors[s] || '#5c6b7a'),
+                        borderColor: '#1a2230',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        function updateTrendChart() {
+            // Group by quote sent month
+            const monthlyData = {};
+            filteredData.forEach(row => {
+                if (!row.quoteSentMonthKey) return;
+                if (!monthlyData[row.quoteSentMonthKey]) {
+                    monthlyData[row.quoteSentMonthKey] = { total: 0, won: 0, lost: 0, value: 0 };
+                }
+                monthlyData[row.quoteSentMonthKey].total++;
+                if (row.stage === 'Closed Won') {
+                    monthlyData[row.quoteSentMonthKey].won++;
+                    monthlyData[row.quoteSentMonthKey].value += row.amount;
+                }
+                if (row.stage === 'Closed Lost') {
+                    monthlyData[row.quoteSentMonthKey].lost++;
+                }
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const labels = sortedMonths.map(formatMonthLabel);
+            const totalData = sortedMonths.map(m => monthlyData[m].total);
+            const winRateData = sortedMonths.map(m => {
+                const closed = monthlyData[m].won + monthlyData[m].lost;
+                return closed > 0 ? (monthlyData[m].won / closed) * 100 : 0;
+            });
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            if (charts.trend) charts.trend.destroy();
+
+            charts.trend = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Quotes',
+                            data: totalData,
+                            backgroundColor: 'rgba(0, 168, 255, 0.7)',
+                            borderColor: '#00a8ff',
+                            borderWidth: 1,
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            label: 'Win Rate %',
+                            data: winRateData,
+                            type: 'line',
+                            borderColor: '#00d4aa',
+                            backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#00d4aa',
+                            pointRadius: 4,
+                            tension: 0.3,
+                            fill: true,
+                            yAxisID: 'y1',
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Quote Count'
+                            },
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Win Rate %'
+                            },
+                            min: 0,
+                            max: 100,
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTimingTrendChart() {
+            // Group by quote sent month - using DOLLAR VALUES
+            const monthlyTiming = {};
+            filteredData.forEach(row => {
+                if (!row.quoteSentMonthKey) return;
+                if (!monthlyTiming[row.quoteSentMonthKey]) {
+                    monthlyTiming[row.quoteSentMonthKey] = { 
+                        totalQuoted: 0,
+                        same: 0, one: 0, two: 0, three_plus: 0 
+                    };
+                }
+                monthlyTiming[row.quoteSentMonthKey].totalQuoted += row.amount;
+                
+                if (row.stage === 'Closed Won' && row.bookingTiming) {
+                    monthlyTiming[row.quoteSentMonthKey][row.bookingTiming] += row.amount;
+                }
+            });
+
+            const sortedMonths = Object.keys(monthlyTiming).sort();
+            const labels = sortedMonths.map(formatMonthLabel);
+
+            const ctx = document.getElementById('timingTrendChart').getContext('2d');
+            
+            if (charts.timingTrend) charts.timingTrend.destroy();
+
+            charts.timingTrend = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Same Month',
+                            data: sortedMonths.map(m => (monthlyTiming[m].same / monthlyTiming[m].totalQuoted) * 100),
+                            backgroundColor: '#00d4aa',
+                            stack: 'timing'
+                        },
+                        {
+                            label: '+1 Month',
+                            data: sortedMonths.map(m => (monthlyTiming[m].one / monthlyTiming[m].totalQuoted) * 100),
+                            backgroundColor: '#00a8ff',
+                            stack: 'timing'
+                        },
+                        {
+                            label: '+2 Months',
+                            data: sortedMonths.map(m => (monthlyTiming[m].two / monthlyTiming[m].totalQuoted) * 100),
+                            backgroundColor: '#ffb347',
+                            stack: 'timing'
+                        },
+                        {
+                            label: '+3 Months',
+                            data: sortedMonths.map(m => (monthlyTiming[m].three_plus / monthlyTiming[m].totalQuoted) * 100),
+                            backgroundColor: '#ff6b6b',
+                            stack: 'timing'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw.toFixed(1) + '%';
+                                },
+                                afterBody: function(context) {
+                                    const monthKey = sortedMonths[context[0].dataIndex];
+                                    return `\nTotal Quoted: ${formatCurrency(monthlyTiming[monthKey].totalQuoted)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: '% of Quoted Value'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRevenueChart() {
+            const monthlyRevenue = {};
+            filteredData.filter(r => r.stage === 'Closed Won').forEach(row => {
+                if (!row.quoteSentMonthKey) return;
+                monthlyRevenue[row.quoteSentMonthKey] = (monthlyRevenue[row.quoteSentMonthKey] || 0) + row.amount;
+            });
+
+            const sortedMonths = Object.keys(monthlyRevenue).sort();
+            const labels = sortedMonths.map(formatMonthLabel);
+            const data = sortedMonths.map(m => monthlyRevenue[m]);
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            if (charts.revenue) charts.revenue.destroy();
+
+            charts.revenue = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: data,
+                        backgroundColor: 'rgba(168, 85, 247, 0.7)',
+                        borderColor: '#a855f7',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatCurrency(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Revenue'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDealSizeChart() {
+            const closedWon = filteredData.filter(r => r.stage === 'Closed Won');
+            
+            // Create buckets
+            const buckets = {
+                '$0-500': 0,
+                '$500-1K': 0,
+                '$1K-2K': 0,
+                '$2K-5K': 0,
+                '$5K-10K': 0,
+                '$10K+': 0
+            };
+
+            closedWon.forEach(row => {
+                if (row.amount < 500) buckets['$0-500']++;
+                else if (row.amount < 1000) buckets['$500-1K']++;
+                else if (row.amount < 2000) buckets['$1K-2K']++;
+                else if (row.amount < 5000) buckets['$2K-5K']++;
+                else if (row.amount < 10000) buckets['$5K-10K']++;
+                else buckets['$10K+']++;
+            });
+
+            const ctx = document.getElementById('dealSizeChart').getContext('2d');
+            
+            if (charts.dealSize) charts.dealSize.destroy();
+
+            charts.dealSize = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(buckets),
+                    datasets: [{
+                        label: 'Deals',
+                        data: Object.values(buckets),
+                        backgroundColor: [
+                            'rgba(0, 212, 170, 0.8)',
+                            'rgba(0, 168, 255, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(255, 179, 71, 0.8)',
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(255, 107, 107, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Deals'
+                            },
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDaysToCloseChart() {
+            // Group by quote sent month - separate Won and Lost
+            const monthlyDays = {};
+            
+            filteredData.filter(r => 
+                (r.stage === 'Closed Won' || r.stage === 'Closed Lost') && 
+                r.daysToClose !== null
+            ).forEach(row => {
+                if (!row.quoteSentMonthKey) return;
+                if (!monthlyDays[row.quoteSentMonthKey]) {
+                    monthlyDays[row.quoteSentMonthKey] = { 
+                        wonDays: 0, wonCount: 0,
+                        lostDays: 0, lostCount: 0
+                    };
+                }
+                if (row.stage === 'Closed Won') {
+                    monthlyDays[row.quoteSentMonthKey].wonDays += row.daysToClose;
+                    monthlyDays[row.quoteSentMonthKey].wonCount++;
+                } else {
+                    monthlyDays[row.quoteSentMonthKey].lostDays += row.daysToClose;
+                    monthlyDays[row.quoteSentMonthKey].lostCount++;
+                }
+            });
+
+            const sortedMonths = Object.keys(monthlyDays).sort();
+            const labels = sortedMonths.map(formatMonthLabel);
+            const avgWonDays = sortedMonths.map(m => 
+                monthlyDays[m].wonCount > 0 ? monthlyDays[m].wonDays / monthlyDays[m].wonCount : null
+            );
+            const avgLostDays = sortedMonths.map(m => 
+                monthlyDays[m].lostCount > 0 ? monthlyDays[m].lostDays / monthlyDays[m].lostCount : null
+            );
+
+            const ctx = document.getElementById('daysToCloseChart').getContext('2d');
+            
+            if (charts.daysToClose) charts.daysToClose.destroy();
+
+            charts.daysToClose = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Days to Win',
+                            data: avgWonDays,
+                            borderColor: '#00d4aa',
+                            backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#00d4aa',
+                            pointRadius: 4,
+                            tension: 0.3,
+                            fill: false,
+                            spanGaps: true
+                        },
+                        {
+                            label: 'Days to Lose',
+                            data: avgLostDays,
+                            borderColor: '#ffb347',
+                            backgroundColor: 'rgba(255, 179, 71, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#ffb347',
+                            pointRadius: 4,
+                            tension: 0.3,
+                            fill: false,
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.raw === null) return context.dataset.label + ': No data';
+                                    return context.dataset.label + ': ' + Math.round(context.raw) + ' days';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Days'
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDaysToCloseByOwnerChart() {
+            // Group by owner - separate Won and Lost
+            const ownerDays = {};
+            
+            filteredData.filter(r => 
+                (r.stage === 'Closed Won' || r.stage === 'Closed Lost') && 
+                r.daysToClose !== null
+            ).forEach(row => {
+                if (!ownerDays[row.owner]) {
+                    ownerDays[row.owner] = { 
+                        wonDays: 0, wonCount: 0,
+                        lostDays: 0, lostCount: 0
+                    };
+                }
+                if (row.stage === 'Closed Won') {
+                    ownerDays[row.owner].wonDays += row.daysToClose;
+                    ownerDays[row.owner].wonCount++;
+                } else {
+                    ownerDays[row.owner].lostDays += row.daysToClose;
+                    ownerDays[row.owner].lostCount++;
+                }
+            });
+
+            // Sort by average won days (fastest first)
+            const sortedOwners = Object.entries(ownerDays)
+                .map(([owner, data]) => ({
+                    owner,
+                    avgWonDays: data.wonCount > 0 ? data.wonDays / data.wonCount : null,
+                    avgLostDays: data.lostCount > 0 ? data.lostDays / data.lostCount : null,
+                    wonCount: data.wonCount,
+                    lostCount: data.lostCount,
+                    totalCount: data.wonCount + data.lostCount
+                }))
+                .filter(o => o.totalCount >= 5) // Only show owners with at least 5 deals
+                .sort((a, b) => (a.avgWonDays || 999) - (b.avgWonDays || 999));
+
+            const ctx = document.getElementById('daysToCloseByOwnerChart').getContext('2d');
+            
+            if (charts.daysToCloseByOwner) charts.daysToCloseByOwner.destroy();
+
+            charts.daysToCloseByOwner = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedOwners.map(o => o.owner),
+                    datasets: [
+                        {
+                            label: 'Days to Win',
+                            data: sortedOwners.map(o => o.avgWonDays),
+                            backgroundColor: '#00d4aa',
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Days to Lose',
+                            data: sortedOwners.map(o => o.avgLostDays),
+                            backgroundColor: '#ffb347',
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const owner = sortedOwners[context.dataIndex];
+                                    const count = context.datasetIndex === 0 ? owner.wonCount : owner.lostCount;
+                                    if (context.raw === null) return context.dataset.label + ': No data';
+                                    return `${context.dataset.label}: ${Math.round(context.raw)} days (${count} deals)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Days'
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateYearOverYearChart() {
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            // Get all years in the data
+            const years = [...new Set(filteredData.map(r => r.quoteSentDate?.getFullYear()).filter(Boolean))].sort();
+            
+            // Update table headers
+            years.forEach((year, i) => {
+                const th = document.getElementById(`yoyYear${i + 1}`);
+                if (th) th.textContent = year;
+            });
+            
+            // Group data by month and year
+            const monthYearData = {};
+            
+            filteredData.forEach(row => {
+                if (!row.quoteSentDate) return;
+                const month = row.quoteSentDate.getMonth(); // 0-11
+                const year = row.quoteSentDate.getFullYear();
+                
+                const key = `${month}-${year}`;
+                if (!monthYearData[key]) {
+                    monthYearData[key] = {
+                        month, year,
+                        totalQuoted: 0,
+                        totalWon: 0,
+                        timingValue: { same: 0, one: 0, two: 0, three_plus: 0 },
+                        wonDaysTotal: 0,
+                        wonDaysCount: 0,
+                        lostDaysTotal: 0,
+                        lostDaysCount: 0
+                    };
+                }
+                
+                monthYearData[key].totalQuoted += row.amount;
+                
+                if (row.stage === 'Closed Won') {
+                    monthYearData[key].totalWon += row.amount;
+                    if (row.bookingTiming) {
+                        monthYearData[key].timingValue[row.bookingTiming] += row.amount;
+                    }
+                    // Track days for Won
+                    if (row.daysToClose !== null) {
+                        monthYearData[key].wonDaysTotal += row.daysToClose;
+                        monthYearData[key].wonDaysCount++;
+                    }
+                } else if (row.stage === 'Closed Lost') {
+                    // Track days for Lost
+                    if (row.daysToClose !== null) {
+                        monthYearData[key].lostDaysTotal += row.daysToClose;
+                        monthYearData[key].lostDaysCount++;
+                    }
+                }
+            });
+            
+            // Get selected metric
+            const metric = document.getElementById('yoyMetric').value;
+            
+            // Prepare chart data
+            const datasets = years.map((year, index) => {
+                const colors = ['#00d4aa', '#00a8ff', '#a855f7', '#ffb347', '#ff6b6b'];
+                const color = colors[index % colors.length];
+                
+                const data = monthNames.map((_, monthIndex) => {
+                    const key = `${monthIndex}-${year}`;
+                    const d = monthYearData[key];
+                    if (!d || d.totalQuoted === 0) return null;
+                    
+                    switch(metric) {
+                        case 'totalRatio':
+                            return (d.totalWon / d.totalQuoted) * 100;
+                        case 'sameMonth':
+                            return (d.timingValue.same / d.totalQuoted) * 100;
+                        case 'avgDaysWon':
+                            return d.wonDaysCount > 0 ? d.wonDaysTotal / d.wonDaysCount : null;
+                        case 'avgDaysLost':
+                            return d.lostDaysCount > 0 ? d.lostDaysTotal / d.lostDaysCount : null;
+                        case 'totalQuoted':
+                            return d.totalQuoted;
+                        case 'totalWon':
+                            return d.totalWon;
+                        default:
+                            return 0;
+                    }
+                });
+                
+                return {
+                    label: year.toString(),
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: color + '33',
+                    borderWidth: 3,
+                    pointBackgroundColor: color,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.3,
+                    spanGaps: true
+                };
+            });
+            
+            const ctx = document.getElementById('yoyChart').getContext('2d');
+            
+            if (charts.yoy) charts.yoy.destroy();
+            
+            const isPercentage = metric === 'totalRatio' || metric === 'sameMonth';
+            const isCurrency = metric === 'totalQuoted' || metric === 'totalWon';
+            const isDays = metric === 'avgDaysWon' || metric === 'avgDaysLost';
+            
+            charts.yoy = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthNames,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.raw === null) return context.dataset.label + ': No data';
+                                    if (isPercentage) return context.dataset.label + ': ' + context.raw.toFixed(1) + '%';
+                                    if (isCurrency) return context.dataset.label + ': ' + formatCurrency(context.raw);
+                                    if (isDays) return context.dataset.label + ': ' + Math.round(context.raw) + ' days';
+                                    return context.dataset.label + ': ' + context.raw;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: isPercentage ? 'Percentage' : (isCurrency ? 'Amount ($)' : (isDays ? 'Days' : 'Value'))
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    if (isPercentage) return value + '%';
+                                    if (isCurrency) return '$' + (value / 1000).toFixed(0) + 'K';
+                                    if (isDays) return Math.round(value);
+                                    return value;
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(42, 53, 68, 0.5)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Update table
+            const tbody = document.getElementById('yoyTableBody');
+            tbody.innerHTML = '';
+            
+            fullMonthNames.forEach((monthName, monthIndex) => {
+                const row = document.createElement('tr');
+                let cells = `<td class="owner-name">${monthName}</td>`;
+                let values = [];
+                
+                years.forEach(year => {
+                    const key = `${monthIndex}-${year}`;
+                    const d = monthYearData[key];
+                    let value = null;
+                    let displayValue = '-';
+                    
+                    if (d && d.totalQuoted > 0) {
+                        switch(metric) {
+                            case 'totalRatio':
+                                value = (d.totalWon / d.totalQuoted) * 100;
+                                displayValue = value.toFixed(1) + '%';
+                                break;
+                            case 'sameMonth':
+                                value = (d.timingValue.same / d.totalQuoted) * 100;
+                                displayValue = value.toFixed(1) + '%';
+                                break;
+                            case 'avgDaysWon':
+                                if (d.wonDaysCount > 0) {
+                                    value = d.wonDaysTotal / d.wonDaysCount;
+                                    displayValue = Math.round(value) + ' days';
+                                }
+                                break;
+                            case 'avgDaysLost':
+                                if (d.lostDaysCount > 0) {
+                                    value = d.lostDaysTotal / d.lostDaysCount;
+                                    displayValue = Math.round(value) + ' days';
+                                }
+                                break;
+                            case 'totalQuoted':
+                                value = d.totalQuoted;
+                                displayValue = formatCurrency(value);
+                                break;
+                            case 'totalWon':
+                                value = d.totalWon;
+                                displayValue = formatCurrency(value);
+                                break;
+                        }
+                        if (value !== null) values.push(value);
+                    }
+                    
+                    cells += `<td class="stat-percent">${displayValue}</td>`;
+                });
+                
+                // Calculate average
+                const avg = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : null;
+                let avgDisplay = '-';
+                if (avg !== null) {
+                    if (isPercentage) avgDisplay = avg.toFixed(1) + '%';
+                    else if (isCurrency) avgDisplay = formatCurrency(avg);
+                    else if (isDays) avgDisplay = Math.round(avg) + ' days';
+                    else avgDisplay = avg.toFixed(1);
+                }
+                cells += `<td class="stat-percent" style="font-weight: 700; color: var(--accent-purple);">${avgDisplay}</td>`;
+                
+                row.innerHTML = cells;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateOwnerTable() {
+            const ownerStats = {};
+            
+            filteredData.forEach(row => {
+                if (!ownerStats[row.owner]) {
+                    ownerStats[row.owner] = {
+                        totalQuoted: 0,
+                        totalCount: 0,
+                        wonCount: 0,
+                        lostCount: 0,
+                        wonValue: 0,
+                        timingValue: { same: 0, one: 0, two: 0, three_plus: 0 },
+                        wonDaysTotal: 0,
+                        wonDaysCount: 0,
+                        lostDaysTotal: 0,
+                        lostDaysCount: 0
+                    };
+                }
+                ownerStats[row.owner].totalQuoted += row.amount;
+                ownerStats[row.owner].totalCount++;
+                if (row.stage === 'Closed Won') {
+                    ownerStats[row.owner].wonCount++;
+                    ownerStats[row.owner].wonValue += row.amount;
+                    if (row.bookingTiming) {
+                        ownerStats[row.owner].timingValue[row.bookingTiming] += row.amount;
+                    }
+                    // Track days for Won
+                    if (row.daysToClose !== null) {
+                        ownerStats[row.owner].wonDaysTotal += row.daysToClose;
+                        ownerStats[row.owner].wonDaysCount++;
+                    }
+                }
+                if (row.stage === 'Closed Lost') {
+                    ownerStats[row.owner].lostCount++;
+                    // Track days for Lost
+                    if (row.daysToClose !== null) {
+                        ownerStats[row.owner].lostDaysTotal += row.daysToClose;
+                        ownerStats[row.owner].lostDaysCount++;
+                    }
+                }
+            });
+
+            const tbody = document.getElementById('ownerTableBody');
+            tbody.innerHTML = '';
+
+            // Sort by total quoted value
+            const sortedOwners = Object.entries(ownerStats)
+                .sort((a, b) => b[1].totalQuoted - a[1].totalQuoted);
+
+            sortedOwners.forEach(([owner, stats]) => {
+                const totalClosed = stats.wonCount + stats.lostCount;
+                const winRate = totalClosed > 0 ? stats.wonCount / totalClosed : 0;
+                const totalQuoted = stats.totalQuoted;
+                const timing = stats.timingValue;
+                
+                // Average days to close - separate for Won and Lost
+                const avgDaysWon = stats.wonDaysCount > 0 ? Math.round(stats.wonDaysTotal / stats.wonDaysCount) : null;
+                const avgDaysLost = stats.lostDaysCount > 0 ? Math.round(stats.lostDaysTotal / stats.lostDaysCount) : null;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="owner-name">${owner}</td>
+                    <td class="stat-value">${formatCurrency(totalQuoted)}</td>
+                    <td><span class="stat-value">${formatNumber(stats.wonCount)}</span></td>
+                    <td><span style="color: var(--accent-danger);">${formatNumber(stats.lostCount)}</span></td>
+                    <td>
+                        <span class="stat-percent win-rate">${formatPercent(winRate)}</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${winRate * 100}%"></div>
+                        </div>
+                    </td>
+                    <td class="stat-value">${formatCurrency(stats.wonValue)}</td>
+                    <td class="stat-percent" style="color: var(--accent-primary); font-weight: 600;">${avgDaysWon !== null ? avgDaysWon : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-warning); font-weight: 600;">${avgDaysLost !== null ? avgDaysLost : '-'}</td>
+                    <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.same / totalQuoted) : '-'}</td>
+                    <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.one / totalQuoted) : '-'}</td>
+                    <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.two / totalQuoted) : '-'}</td>
+                    <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.three_plus / totalQuoted) : '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateMonthlyTimingTable() {
+            // Group by quote sent month - using DOLLAR VALUES
+            // Formula: $ Closed Won in timing bucket / $ Total Quoted that month
+            const monthlyTiming = {};
+            
+            filteredData.forEach(row => {
+                if (!row.quoteSentMonthKey) return;
+                if (!monthlyTiming[row.quoteSentMonthKey]) {
+                    monthlyTiming[row.quoteSentMonthKey] = {
+                        totalQuoted: 0,
+                        totalWonValue: 0,
+                        timingValue: { same: 0, one: 0, two: 0, three_plus: 0 },
+                        pendingValue: 0,
+                        pendingCount: 0,
+                        wonDaysTotal: 0,
+                        wonDaysCount: 0,
+                        lostDaysTotal: 0,
+                        lostDaysCount: 0
+                    };
+                }
+                // Add all quoted amounts to total
+                monthlyTiming[row.quoteSentMonthKey].totalQuoted += row.amount;
+                
+                if (row.stage === 'Closed Won') {
+                    monthlyTiming[row.quoteSentMonthKey].totalWonValue += row.amount;
+                    if (row.bookingTiming) {
+                        monthlyTiming[row.quoteSentMonthKey].timingValue[row.bookingTiming] += row.amount;
+                    }
+                    // Track days for Won
+                    if (row.daysToClose !== null) {
+                        monthlyTiming[row.quoteSentMonthKey].wonDaysTotal += row.daysToClose;
+                        monthlyTiming[row.quoteSentMonthKey].wonDaysCount++;
+                    }
+                } else if (row.stage === 'Closed Lost') {
+                    // Track days for Lost
+                    if (row.daysToClose !== null) {
+                        monthlyTiming[row.quoteSentMonthKey].lostDaysTotal += row.daysToClose;
+                        monthlyTiming[row.quoteSentMonthKey].lostDaysCount++;
+                    }
+                } else {
+                    // Track pending (not yet closed)
+                    monthlyTiming[row.quoteSentMonthKey].pendingValue += row.amount;
+                    monthlyTiming[row.quoteSentMonthKey].pendingCount++;
+                }
+            });
+
+            const tbody = document.getElementById('monthlyTimingTableBody');
+            tbody.innerHTML = '';
+
+            // Sort by month descending (most recent first)
+            const sortedMonths = Object.keys(monthlyTiming).sort().reverse();
+
+            sortedMonths.forEach(monthKey => {
+                const stats = monthlyTiming[monthKey];
+                const totalQuoted = stats.totalQuoted;
+                const timing = stats.timingValue;
+                
+                // Format month nicely
+                const [year, month] = monthKey.split('-');
+                const monthDate = new Date(year, month - 1, 1);
+                const monthLabel = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                
+                // Total ratio = total won value / total quoted value
+                const totalWonValue = stats.totalWonValue;
+                const totalRatio = totalQuoted > 0 ? totalWonValue / totalQuoted : 0;
+                
+                // Average days to close - separate for Won and Lost
+                const avgDaysWon = stats.wonDaysCount > 0 ? Math.round(stats.wonDaysTotal / stats.wonDaysCount) : null;
+                const avgDaysLost = stats.lostDaysCount > 0 ? Math.round(stats.lostDaysTotal / stats.lostDaysCount) : null;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="owner-name">${monthLabel}</td>
+                    <td class="stat-value">${formatCurrency(totalQuoted)}</td>
+                    <td class="stat-percent" style="color: var(--accent-purple); font-weight: 700;">${totalQuoted > 0 ? formatPercent(totalRatio) : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-primary); font-weight: 600;">${avgDaysWon !== null ? avgDaysWon : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-warning); font-weight: 600;">${avgDaysLost !== null ? avgDaysLost : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-primary);">${totalQuoted > 0 ? formatPercent(timing.same / totalQuoted) : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-secondary);">${totalQuoted > 0 ? formatPercent(timing.one / totalQuoted) : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-warning);">${totalQuoted > 0 ? formatPercent(timing.two / totalQuoted) : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-danger);">${totalQuoted > 0 ? formatPercent(timing.three_plus / totalQuoted) : '-'}</td>
+                    <td class="stat-percent" style="color: var(--text-muted);">${formatCurrency(stats.pendingValue)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateDashboard() {
+            updateSummaryCards();
+            updateBookingTiming();
+            updateStageChart();
+            updateTrendChart();
+            updateTimingTrendChart();
+            updateDaysToCloseChart();
+            updateDaysToCloseByOwnerChart();
+            updateRevenueChart();
+            updateDealSizeChart();
+            updateYearOverYearChart();
+            updateMonthlyTimingTable();
+            updateOwnerTable();
+        }
+
+        // Calculator functions
+        function getHistoricalAverages(owner = 'all') {
+            // Calculate average conversion rates across all months, optionally filtered by owner
+            const monthlyStats = {};
+            
+            // Use rawData to get all historical data, then filter by owner if specified
+            const dataToUse = owner === 'all' ? rawData : rawData.filter(row => row.owner === owner);
+            
+            dataToUse.forEach(row => {
+                if (!row.quoteSentMonthKey) return;
+                if (!monthlyStats[row.quoteSentMonthKey]) {
+                    monthlyStats[row.quoteSentMonthKey] = {
+                        totalQuoted: 0,
+                        sameMonth: 0,
+                        oneMonth: 0,
+                        twoMonth: 0
+                    };
+                }
+                monthlyStats[row.quoteSentMonthKey].totalQuoted += row.amount;
+                
+                if (row.stage === 'Closed Won' && row.bookingTiming) {
+                    if (row.bookingTiming === 'same') {
+                        monthlyStats[row.quoteSentMonthKey].sameMonth += row.amount;
+                    } else if (row.bookingTiming === 'one') {
+                        monthlyStats[row.quoteSentMonthKey].oneMonth += row.amount;
+                    } else if (row.bookingTiming === 'two') {
+                        monthlyStats[row.quoteSentMonthKey].twoMonth += row.amount;
+                    }
+                }
+            });
+
+            // Calculate averages
+            const months = Object.keys(monthlyStats);
+            let totalSameRate = 0, totalOneRate = 0, totalTwoRate = 0;
+            let validMonths = 0;
+
+            months.forEach(month => {
+                const stats = monthlyStats[month];
+                if (stats.totalQuoted > 0) {
+                    totalSameRate += stats.sameMonth / stats.totalQuoted;
+                    totalOneRate += stats.oneMonth / stats.totalQuoted;
+                    totalTwoRate += stats.twoMonth / stats.totalQuoted;
+                    validMonths++;
+                }
+            });
+
+            return {
+                sameMonth: validMonths > 0 ? totalSameRate / validMonths : 0,
+                oneMonth: validMonths > 0 ? totalOneRate / validMonths : 0,
+                twoMonth: validMonths > 0 ? totalTwoRate / validMonths : 0
+            };
+        }
+
+        function getExistingQuotesForMonth(monthKey, owner = 'all') {
+            // Get total quotes already sent in a given month, optionally filtered by owner
+            let totalQuoted = 0;
+            const dataToUse = owner === 'all' ? rawData : rawData.filter(row => row.owner === owner);
+            dataToUse.forEach(row => {
+                if (row.quoteSentMonthKey === monthKey) {
+                    totalQuoted += row.amount;
+                }
+            });
+            return totalQuoted;
+        }
+
+        function getMonthKeyFromDate(year, month) {
+            return `${year}-${String(month + 1).padStart(2, '0')}`;
+        }
+
+        function formatMonthFromKey(monthKey) {
+            const [year, month] = monthKey.split('-');
+            const date = new Date(year, month - 1, 1);
+            return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        }
+
+        function updateCalculatorAverages() {
+            const selectedOwner = document.getElementById('calcOwnerFilter').value;
+            const averages = getHistoricalAverages(selectedOwner);
+            document.getElementById('avgSameMonth').textContent = (averages.sameMonth * 100).toFixed(1) + '%';
+            document.getElementById('avgOneMonth').textContent = (averages.oneMonth * 100).toFixed(1) + '%';
+            document.getElementById('avgTwoMonth').textContent = (averages.twoMonth * 100).toFixed(1) + '%';
+            
+            // Update subtitle to show whose rates are being displayed
+            const ownerName = selectedOwner === 'all' ? 'Team Average' : selectedOwner;
+            document.getElementById('ratesSubtitle').innerHTML = `Based on <strong>${ownerName}</strong>, these are the conversion rates by timing:`;
+        }
+
+        function populateCalcOwnerFilter() {
+            const owners = [...new Set(rawData.map(row => row.owner).filter(Boolean))].sort();
+            const select = document.getElementById('calcOwnerFilter');
+            select.innerHTML = '<option value="all">All Team Members (Team Average)</option>';
+            owners.forEach(owner => {
+                const option = document.createElement('option');
+                option.value = owner;
+                option.textContent = owner;
+                select.appendChild(option);
+            });
+        }
+
+        function calculateQuotingPlan() {
+            const targetMonthInput = document.getElementById('targetMonth').value;
+            const salesGoal = parseFloat(document.getElementById('salesGoal').value) || 0;
+            const selectedOwner = document.getElementById('calcOwnerFilter').value;
+
+            if (!targetMonthInput || salesGoal <= 0) {
+                alert('Please enter a valid target month and sales goal.');
+                return;
+            }
+
+            const [targetYear, targetMonthNum] = targetMonthInput.split('-').map(Number);
+            const targetMonthKey = getMonthKeyFromDate(targetYear, targetMonthNum - 1);
+            
+            // Get month keys for previous months
+            const prevMonth1Key = getMonthKeyFromDate(
+                targetMonthNum === 1 ? targetYear - 1 : targetYear,
+                targetMonthNum === 1 ? 11 : targetMonthNum - 2
+            );
+            const prevMonth2Key = getMonthKeyFromDate(
+                targetMonthNum <= 2 ? targetYear - 1 : targetYear,
+                targetMonthNum <= 2 ? 12 - (2 - targetMonthNum) - 1 : targetMonthNum - 3
+            );
+
+            const averages = getHistoricalAverages(selectedOwner);
+            
+            // Get existing quotes for each month (filtered by owner if specified)
+            const existingTargetMonth = getExistingQuotesForMonth(targetMonthKey, selectedOwner);
+            const existingPrevMonth1 = getExistingQuotesForMonth(prevMonth1Key, selectedOwner);
+            const existingPrevMonth2 = getExistingQuotesForMonth(prevMonth2Key, selectedOwner);
+
+            // Calculate expected contributions from existing quotes
+            const contributionFromSame = existingTargetMonth * averages.sameMonth;
+            const contributionFromPrev1 = existingPrevMonth1 * averages.oneMonth;
+            const contributionFromPrev2 = existingPrevMonth2 * averages.twoMonth;
+
+            const totalExistingContribution = contributionFromSame + contributionFromPrev1 + contributionFromPrev2;
+            const remainingGoal = salesGoal - totalExistingContribution;
+
+            // Build results HTML
+            const ownerLabel = selectedOwner === 'all' ? 'Team' : selectedOwner;
+            let resultsHtml = `
+                <div class="result-summary">
+                    <div class="goal-text">${ownerLabel}'s Goal for ${formatMonthFromKey(targetMonthKey)}</div>
+                    <div class="goal-amount">${formatCurrency(salesGoal)}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">
+                        Using ${selectedOwner === 'all' ? 'team average' : ownerLabel + "'s personal"} conversion rates
+                    </div>
+                </div>
+                <div class="result-breakdown">
+            `;
+
+            // Check what data exists and build the breakdown
+            const hasTargetMonthData = existingTargetMonth > 0;
+            const hasPrev1Data = existingPrevMonth1 > 0;
+            const hasPrev2Data = existingPrevMonth2 > 0;
+
+            // Previous Month 2 (earliest)
+            if (hasPrev2Data) {
+                resultsHtml += `
+                    <div class="result-month existing">
+                        <div>
+                            <div class="month-label">${formatMonthFromKey(prevMonth2Key)}</div>
+                            <div class="month-type">+2 Months (Already Quoted)</div>
+                        </div>
+                        <div class="month-arrow">→</div>
+                        <div class="month-contribution">
+                            <div class="contribution-amount">${formatCurrency(contributionFromPrev2)}</div>
+                            <div class="contribution-rate">${formatCurrency(existingPrevMonth2)} quoted × ${(averages.twoMonth * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const neededPrev2 = remainingGoal > 0 ? remainingGoal / (averages.sameMonth + averages.oneMonth + averages.twoMonth) : 0;
+                resultsHtml += `
+                    <div class="result-month needed">
+                        <div>
+                            <div class="month-label">${formatMonthFromKey(prevMonth2Key)}</div>
+                            <div class="month-type">+2 Months (Need to Quote)</div>
+                        </div>
+                        <div class="month-arrow">→</div>
+                        <div class="quote-needed">
+                            <div class="quote-amount needed">${formatCurrency(neededPrev2)}</div>
+                            <div class="quote-label">Contributes ${formatCurrency(neededPrev2 * averages.twoMonth)} (${(averages.twoMonth * 100).toFixed(1)}%)</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Previous Month 1
+            if (hasPrev1Data) {
+                resultsHtml += `
+                    <div class="result-month existing">
+                        <div>
+                            <div class="month-label">${formatMonthFromKey(prevMonth1Key)}</div>
+                            <div class="month-type">+1 Month (Already Quoted)</div>
+                        </div>
+                        <div class="month-arrow">→</div>
+                        <div class="month-contribution">
+                            <div class="contribution-amount">${formatCurrency(contributionFromPrev1)}</div>
+                            <div class="contribution-rate">${formatCurrency(existingPrevMonth1)} quoted × ${(averages.oneMonth * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const neededPrev1 = remainingGoal > 0 ? remainingGoal / (averages.sameMonth + averages.oneMonth + (hasPrev2Data ? 0 : averages.twoMonth)) : 0;
+                resultsHtml += `
+                    <div class="result-month needed">
+                        <div>
+                            <div class="month-label">${formatMonthFromKey(prevMonth1Key)}</div>
+                            <div class="month-type">+1 Month (Need to Quote)</div>
+                        </div>
+                        <div class="month-arrow">→</div>
+                        <div class="quote-needed">
+                            <div class="quote-amount needed">${formatCurrency(neededPrev1)}</div>
+                            <div class="quote-label">Contributes ${formatCurrency(neededPrev1 * averages.oneMonth)} (${(averages.oneMonth * 100).toFixed(1)}%)</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Target Month (Same Month)
+            const adjustedRemainingGoal = salesGoal - contributionFromPrev1 - contributionFromPrev2;
+            
+            if (hasTargetMonthData) {
+                const stillNeeded = adjustedRemainingGoal - contributionFromSame;
+                if (stillNeeded > 0) {
+                    const additionalQuotesNeeded = stillNeeded / averages.sameMonth;
+                    resultsHtml += `
+                        <div class="result-month existing">
+                            <div>
+                                <div class="month-label">${formatMonthFromKey(targetMonthKey)}</div>
+                                <div class="month-type">Same Month (Already Quoted)</div>
+                            </div>
+                            <div class="month-arrow">→</div>
+                            <div class="month-contribution">
+                                <div class="contribution-amount">${formatCurrency(contributionFromSame)}</div>
+                                <div class="contribution-rate">${formatCurrency(existingTargetMonth)} quoted × ${(averages.sameMonth * 100).toFixed(1)}%</div>
+                            </div>
+                        </div>
+                        <div class="result-month gap">
+                            <div>
+                                <div class="month-label">${formatMonthFromKey(targetMonthKey)}</div>
+                                <div class="month-type">Additional Quotes Needed</div>
+                            </div>
+                            <div class="month-arrow">→</div>
+                            <div class="quote-needed">
+                                <div class="quote-amount needed">${formatCurrency(additionalQuotesNeeded)}</div>
+                                <div class="quote-label">To add ${formatCurrency(stillNeeded)} in revenue</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultsHtml += `
+                        <div class="result-month existing">
+                            <div>
+                                <div class="month-label">${formatMonthFromKey(targetMonthKey)}</div>
+                                <div class="month-type">Same Month (Already Quoted)</div>
+                            </div>
+                            <div class="month-arrow">→</div>
+                            <div class="month-contribution">
+                                <div class="contribution-amount">${formatCurrency(contributionFromSame)}</div>
+                                <div class="contribution-rate">${formatCurrency(existingTargetMonth)} quoted × ${(averages.sameMonth * 100).toFixed(1)}%</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                const quotesNeededTargetMonth = adjustedRemainingGoal > 0 ? adjustedRemainingGoal / averages.sameMonth : 0;
+                resultsHtml += `
+                    <div class="result-month needed">
+                        <div>
+                            <div class="month-label">${formatMonthFromKey(targetMonthKey)}</div>
+                            <div class="month-type">Same Month (Need to Quote)</div>
+                        </div>
+                        <div class="month-arrow">→</div>
+                        <div class="quote-needed">
+                            <div class="quote-amount needed">${formatCurrency(quotesNeededTargetMonth)}</div>
+                            <div class="quote-label">Contributes ${formatCurrency(quotesNeededTargetMonth * averages.sameMonth)} (${(averages.sameMonth * 100).toFixed(1)}%)</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultsHtml += `</div>`;
+
+            // Total summary
+            if (totalExistingContribution >= salesGoal) {
+                resultsHtml += `
+                    <div class="total-needed-box" style="background: linear-gradient(135deg, #00d4aa 0%, #00a8ff 100%);">
+                        <div class="label">🎉 Great News!</div>
+                        <div class="amount">You're on track to exceed your goal!</div>
+                        <div style="color: rgba(0,0,0,0.6); margin-top: 8px;">
+                            Expected: ${formatCurrency(totalExistingContribution)} from existing quotes
+                        </div>
+                    </div>
+                `;
+            } else {
+                const totalNeeded = remainingGoal / averages.sameMonth;
+                resultsHtml += `
+                    <div class="total-needed-box">
+                        <div class="label">Total Additional Quotes Needed</div>
+                        <div class="amount">${formatCurrency(remainingGoal / averages.sameMonth)}</div>
+                        <div style="color: rgba(0,0,0,0.6); margin-top: 8px;">
+                            Expected from existing: ${formatCurrency(totalExistingContribution)} | Gap: ${formatCurrency(remainingGoal)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('resultsContent').innerHTML = resultsHtml;
+            document.getElementById('calculatorResults').style.display = 'block';
+            document.getElementById('calculatorResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Tab navigation
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update buttons
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update content
+                const tabId = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(tabId + 'Tab').classList.add('active');
+                
+                // Update calculator averages when switching to calculator tab
+                if (tabId === 'calculator' && rawData.length > 0) {
+                    populateCalcOwnerFilter();
+                    updateCalculatorAverages();
+                    // Set default target month to next month
+                    const now = new Date();
+                    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                    const monthValue = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}`;
+                    document.getElementById('targetMonth').value = monthValue;
+                }
+            });
+        });
+
+        // Calculator owner filter change - update averages display
+        document.getElementById('calcOwnerFilter').addEventListener('change', function() {
+            updateCalculatorAverages();
+            // Hide previous results when owner changes
+            document.getElementById('calculatorResults').style.display = 'none';
+        });
+
+        // Calculator button
+        document.getElementById('calculateBtn').addEventListener('click', calculateQuotingPlan);
+
+        // Event listeners
+        document.getElementById('yoyMetric').addEventListener('change', updateYearOverYearChart);
+        
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('loading').classList.add('active');
+
+            Papa.parse(file, {
+                header: true,
+                complete: function(results) {
+                    rawData = processData(results.data);
+                    filteredData = [...rawData];
+                    
+                    populateOwnerFilter();
+                    setDateRange();
+                    
+                    document.getElementById('emptyState').style.display = 'none';
+                    document.getElementById('dashboardContent').style.display = 'block';
+                    
+                    updateDashboard();
+                    
+                    document.getElementById('loading').classList.remove('active');
+                },
+                error: function(error) {
+                    console.error('Error parsing CSV:', error);
+                    document.getElementById('loading').classList.remove('active');
+                    alert('Error parsing CSV file. Please check the format.');
+                }
+            });
+        });
+
+        document.getElementById('ownerFilter').addEventListener('change', filterData);
+        document.getElementById('startDate').addEventListener('change', filterData);
+        document.getElementById('endDate').addEventListener('change', filterData);
+
+        // View toggle
+        document.querySelectorAll('.view-toggle button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const view = this.dataset.view;
+                const ownerFilter = document.getElementById('ownerFilter');
+                
+                if (view === 'team') {
+                    ownerFilter.value = 'all';
+                    ownerFilter.disabled = false;
+                } else {
+                    // In individual view, you can still select specific owners
+                    ownerFilter.disabled = false;
+                }
+                
+                filterData();
+            });
+        });
+
+        // Auto-load the CSV if it exists in the same directory
+        window.addEventListener('load', function() {
+            // Try to load the default CSV file (try new file first, then fall back to old)
+            fetch('report1765904777647.csv')
+                .then(response => {
+                    if (response.ok) return response.text();
+                    // Fall back to old file
+                    return fetch('report1765897875644.csv').then(r => {
+                        if (r.ok) return r.text();
+                        throw new Error('No CSV file found');
+                    });
+                })
+                .then(csvText => {
+                    document.getElementById('loading').classList.add('active');
+                    
+                    Papa.parse(csvText, {
+                        header: true,
+                        complete: function(results) {
+                            rawData = processData(results.data);
+                            filteredData = [...rawData];
+                            
+                            populateOwnerFilter();
+                            setDateRange();
+                            
+                            document.getElementById('emptyState').style.display = 'none';
+                            document.getElementById('dashboardContent').style.display = 'block';
+                            
+                            updateDashboard();
+                            
+                            document.getElementById('loading').classList.remove('active');
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.log('No default CSV found, waiting for user upload');
+                });
+        });
+    </script>
+</body>
+</html>
+
