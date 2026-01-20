@@ -4452,9 +4452,13 @@
 
                 // Reset owner filter to "All" and update title when going to Team Dashboard
                 if (this.dataset.tab === 'dashboard' && rawData.length > 0) {
+                    // Reset view toggle to Team
+                    document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+                    document.querySelector('.view-toggle button[data-view="team"]').classList.add('active');
+
                     document.getElementById('ownerFilter').value = 'all';
                     document.querySelector('.header-left h1').textContent = 'Quote Conversion Analytics';
-                    applyFilters();
+                    filterData();
                 }
 
                 // Update content
@@ -4491,15 +4495,14 @@
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 document.getElementById('dashboardTab').classList.add('active');
 
+                // Switch view toggle to Individual
+                document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+                document.querySelector('.view-toggle button[data-view="individual"]').classList.add('active');
+
                 // Set owner filter to this rep
                 const ownerSelect = document.getElementById('ownerFilter');
                 if (ownerSelect) {
-                    // Find the option that matches this rep
-                    const options = Array.from(ownerSelect.options);
-                    const matchingOption = options.find(opt => opt.value === repName);
-                    if (matchingOption) {
-                        ownerSelect.value = repName;
-                    }
+                    ownerSelect.value = repName;
                 }
 
                 // Update dashboard title to show rep name
@@ -4507,7 +4510,7 @@
 
                 // Apply the filter
                 if (rawData.length > 0) {
-                    applyFilters();
+                    filterData();
                 }
             });
         });
