@@ -7,26 +7,35 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Passion+One:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0e14;
-            --bg-secondary: #121820;
-            --bg-card: #1a2230;
-            --bg-card-hover: #232d3f;
-            --accent-primary: #00d4aa;
-            --accent-secondary: #00a8ff;
-            --accent-warning: #ffb347;
-            --accent-danger: #ff6b6b;
-            --accent-purple: #a855f7;
-            --text-primary: #f0f4f8;
-            --text-secondary: #8899a6;
-            --text-muted: #5c6b7a;
-            --border-color: #2a3544;
-            --gradient-1: linear-gradient(135deg, #00d4aa 0%, #00a8ff 100%);
-            --gradient-2: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
-            --gradient-3: linear-gradient(135deg, #ffb347 0%, #ff6b6b 100%);
-            --shadow-glow: 0 0 40px rgba(0, 212, 170, 0.15);
+            /* Sunday Cool Brand Colors */
+            --sc-cream-slush: #f6912d;    /* Orange */
+            --sc-pool-blue: #53cfdd;       /* Light Blue */
+            --sc-sennshine: #fddd00;       /* Yellow */
+            --sc-pink: #e96a6a;            /* Coral Pink */
+            --sc-daylight: #fffdf0;        /* Off-white */
+            --sc-barely-butter: #ffeec6;   /* Cream */
+
+            /* Theme Variables */
+            --bg-primary: #fffdf0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #ffeec6;
+            --accent-primary: #53cfdd;
+            --accent-secondary: #f6912d;
+            --accent-warning: #fddd00;
+            --accent-danger: #e96a6a;
+            --accent-purple: #f6912d;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --border-color: #e0ddd5;
+            --gradient-1: #53cfdd;
+            --gradient-2: #f6912d;
+            --gradient-3: #fddd00;
+            --shadow-glow: 0 4px 20px rgba(83, 207, 221, 0.2);
         }
 
         * {
@@ -36,7 +45,7 @@
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Noto Sans', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
@@ -50,10 +59,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
-                radial-gradient(ellipse at 20% 0%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 100%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(0, 168, 255, 0.04) 0%, transparent 70%);
+            background:
+                radial-gradient(ellipse at 20% 0%, rgba(83, 207, 221, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(246, 145, 45, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(253, 221, 0, 0.05) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
         }
@@ -75,20 +84,31 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            height: 50px;
+            width: auto;
+        }
+
         .header-left h1 {
-            font-size: 2.2rem;
+            font-family: 'Passion One', cursive;
+            font-size: 2.5rem;
             font-weight: 700;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
+            color: var(--sc-pool-blue);
+            margin-bottom: 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .header-left p {
             color: var(--text-secondary);
             font-size: 1rem;
+            margin-top: 8px;
         }
 
         .controls {
@@ -126,9 +146,9 @@
         }
 
         select:hover, select:focus {
-            border-color: var(--accent-primary);
+            border-color: var(--sc-pool-blue);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+            box-shadow: 0 0 0 3px rgba(83, 207, 221, 0.2);
         }
 
         .file-upload {
@@ -138,8 +158,8 @@
         }
 
         .file-upload-btn {
-            background: var(--gradient-1);
-            color: var(--bg-primary);
+            background: var(--sc-cream-slush);
+            color: white;
             padding: 12px 24px;
             border-radius: 10px;
             font-weight: 600;
@@ -152,7 +172,7 @@
 
         .file-upload-btn:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-glow);
+            box-shadow: 0 4px 20px rgba(246, 145, 45, 0.4);
         }
 
         .file-upload input[type="file"] {
@@ -163,6 +183,82 @@
             cursor: pointer;
             width: 100%;
             height: 100%;
+        }
+
+        /* Salesforce Fetch Button */
+        .data-source-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .sf-fetch-btn {
+            background: var(--sc-pool-blue);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .sf-fetch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(83, 207, 221, 0.4);
+        }
+
+        .sf-fetch-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sf-fetch-btn.loading-btn {
+            pointer-events: none;
+        }
+
+        /* Notification Toast */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--sc-pool-blue);
+            color: white;
+        }
+
+        .notification.error {
+            background: var(--sc-pink);
+            color: white;
+        }
+
+        .notification.info {
+            background: var(--sc-cream-slush);
+            color: white;
         }
 
         .loading {
@@ -195,6 +291,10 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
         }
 
         .loading-text {
@@ -320,7 +420,7 @@
         /* Booking Timing Breakdown */
         .timing-breakdown {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 16px;
             margin-top: 20px;
         }
@@ -362,7 +462,8 @@
         .timing-item.same-month .timing-value { color: var(--accent-primary); }
         .timing-item.one-month .timing-value { color: var(--accent-secondary); }
         .timing-item.two-month .timing-value { color: var(--accent-warning); }
-        .timing-item.three-plus .timing-value { color: var(--accent-danger); }
+        .timing-item.three-month .timing-value { color: var(--accent-purple); }
+        .timing-item.four-plus .timing-value { color: var(--accent-danger); }
 
         /* Owner Table */
         .owner-table-container {
@@ -627,7 +728,7 @@
             color: var(--text-secondary);
             padding: 14px 28px;
             border-radius: 12px 12px 0 0;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Noto Sans', sans-serif;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -638,13 +739,13 @@
         }
 
         .tab-btn:hover {
-            background: var(--bg-card-hover);
+            background: var(--sc-barely-butter);
             color: var(--text-primary);
         }
 
         .tab-btn.active {
-            background: var(--gradient-1);
-            color: var(--bg-primary);
+            background: var(--sc-pool-blue);
+            color: white;
             border-color: transparent;
         }
 
@@ -667,14 +768,20 @@
             margin-bottom: 40px;
         }
 
+        .calc-header-logo {
+            height: 60px;
+            width: auto;
+            margin-bottom: 16px;
+        }
+
         .calculator-header h1 {
-            font-size: 2.5rem;
+            font-family: 'Passion One', cursive;
+            font-size: 2.8rem;
             font-weight: 700;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--sc-pool-blue);
             margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .calculator-header p {
@@ -697,20 +804,23 @@
         }
 
         .calc-card h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-family: 'Passion One', cursive;
+            font-size: 1.4rem;
+            font-weight: 700;
             margin-bottom: 20px;
-            color: var(--text-primary);
+            color: var(--sc-pool-blue);
             display: flex;
             align-items: center;
             gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .calc-card h3::before {
             content: '';
             width: 4px;
             height: 24px;
-            background: var(--gradient-1);
+            background: var(--sc-pool-blue);
             border-radius: 2px;
         }
 
@@ -781,12 +891,12 @@
 
         .calculate-btn {
             width: 100%;
-            background: var(--gradient-1);
+            background: var(--sc-pool-blue);
             border: none;
-            color: var(--bg-primary);
+            color: white;
             padding: 16px 24px;
             border-radius: 12px;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Noto Sans', sans-serif;
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
@@ -805,42 +915,135 @@
 
         .rate-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
 
         .rate-item {
             background: var(--bg-secondary);
             border-radius: 12px;
-            padding: 20px;
+            padding: 16px;
             text-align: center;
             border: 1px solid var(--border-color);
         }
 
         .rate-label {
-            font-size: 0.8rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            line-height: 1.3;
         }
 
         .rate-value {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
             color: var(--accent-primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .rate-desc {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-secondary);
+            line-height: 1.3;
+        }
+
+        /* Estimated Quotes Section */
+        .estimates-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .estimates-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .estimates-header:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .estimates-header span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .estimates-content {
+            padding: 0 20px 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .estimates-hint {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding-top: 16px;
+        }
+
+        .estimates-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .estimate-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .estimate-input-group label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .currency-input.small {
+            padding: 8px 12px;
+        }
+
+        .currency-input.small input {
+            font-size: 0.9rem;
+        }
+
+        .clear-estimates-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .clear-estimates-btn:hover {
+            border-color: var(--accent-danger);
+            color: var(--accent-danger);
+        }
+
+        @media (max-width: 768px) {
+            .estimates-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .results-card {
-            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 168, 255, 0.1) 100%);
-            border: 2px solid var(--accent-primary);
+            background: linear-gradient(135deg, rgba(83, 207, 221, 0.1) 0%, rgba(246, 145, 45, 0.1) 100%);
+            border: 2px solid var(--sc-pool-blue);
         }
 
         .result-summary {
@@ -1020,14 +1223,20 @@
             margin-bottom: 40px;
         }
 
+        .guide-header-logo {
+            height: 60px;
+            width: auto;
+            margin-bottom: 16px;
+        }
+
         .guide-header h1 {
-            font-size: 2.5rem;
+            font-family: 'Passion One', cursive;
+            font-size: 2.8rem;
             font-weight: 700;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--sc-pool-blue);
             margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .guide-header p {
@@ -1085,20 +1294,25 @@
         }
 
         .guide-section h2 {
-            font-size: 1.4rem;
+            font-family: 'Passion One', cursive;
+            font-size: 1.6rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--sc-pool-blue);
             margin-bottom: 16px;
             padding-bottom: 12px;
-            border-bottom: 2px solid var(--accent-primary);
+            border-bottom: 2px solid var(--sc-pool-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .guide-section h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
+            font-family: 'Passion One', cursive;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--sc-cream-slush);
             margin-top: 28px;
             margin-bottom: 16px;
+            text-transform: uppercase;
         }
 
         .guide-section h4 {
@@ -1114,9 +1328,9 @@
             line-height: 1.7;
             margin-bottom: 24px;
             padding: 16px 20px;
-            background: var(--bg-secondary);
+            background: var(--sc-barely-butter);
             border-radius: 10px;
-            border-left: 4px solid var(--accent-primary);
+            border-left: 4px solid var(--sc-pool-blue);
         }
 
         .guide-steps {
@@ -1436,7 +1650,10 @@
         <div id="dashboardTab" class="tab-content active">
         <header>
             <div class="header-left">
-                <h1>Quote Conversion Analytics</h1>
+                <div class="logo-title">
+                    <img src="https://cdn.prod.website-files.com/65cfbeb48bcaf136bfe303ff/65d345f1dd92ed1fd590f96f_SC%20LOGO%20(1)%201.avif" alt="Sunday Cool Logo" class="header-logo">
+                    <h1>Quote Conversion Analytics</h1>
+                </div>
                 <p>Track quote performance, conversion rates, and booking timing trends</p>
             </div>
             <div class="controls">
@@ -1463,16 +1680,24 @@
                 </div>
                 <div class="filter-group">
                     <label>Data Source</label>
-                    <div class="file-upload">
-                        <div class="file-upload-btn">
+                    <div class="data-source-buttons">
+                        <button id="fetchSalesforce" class="sf-fetch-btn">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
+                                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
                             </svg>
-                            Load CSV
+                            Fetch from Salesforce
+                        </button>
+                        <div class="file-upload">
+                            <div class="file-upload-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                Load CSV
+                            </div>
+                            <input type="file" id="csvFile" accept=".csv">
                         </div>
-                        <input type="file" id="csvFile" accept=".csv">
                     </div>
                 </div>
             </div>
@@ -1569,10 +1794,15 @@
                         <div class="timing-value" id="twoMonthPct">0%</div>
                         <div class="timing-count" id="twoMonthCount">0 deals</div>
                     </div>
-                    <div class="timing-item three-plus">
+                    <div class="timing-item three-month">
                         <div class="timing-label">+3 Months</div>
-                        <div class="timing-value" id="threePlusPct">0%</div>
-                        <div class="timing-count" id="threePlusCount">0 deals</div>
+                        <div class="timing-value" id="threeMonthPct">0%</div>
+                        <div class="timing-count" id="threeMonthCount">0 deals</div>
+                    </div>
+                    <div class="timing-item four-plus">
+                        <div class="timing-label">+4 Months</div>
+                        <div class="timing-value" id="fourPlusPct">0%</div>
+                        <div class="timing-count" id="fourPlusCount">0 deals</div>
                     </div>
                 </div>
                 <div class="chart-container" style="margin-top: 30px;">
@@ -1614,7 +1844,8 @@
                                 <th>Same Month</th>
                                 <th>2nd Month</th>
                                 <th>3rd Month</th>
-                                <th>4th+ Month</th>
+                                <th>4th Month</th>
+                                <th>5th+ Month</th>
                                 <th>Pending $</th>
                             </tr>
                         </thead>
@@ -1721,7 +1952,8 @@
                                 <th>Same Month %</th>
                                 <th>+1 Month %</th>
                                 <th>+2 Month %</th>
-                                <th>+3+ Month %</th>
+                                <th>+3 Month %</th>
+                                <th>+4+ Month %</th>
                             </tr>
                         </thead>
                         <tbody id="ownerTableBody">
@@ -1736,7 +1968,8 @@
         <div id="calculatorTab" class="tab-content">
             <div class="calculator-container">
                 <div class="calculator-header">
-                    <h1>🧮 Quote Calculator</h1>
+                    <img src="https://cdn.prod.website-files.com/65cfbeb48bcaf136bfe303ff/65d345f1dd92ed1fd590f96f_SC%20LOGO%20(1)%201.avif" alt="Sunday Cool Logo" class="calc-header-logo">
+                    <h1>Quote Calculator</h1>
                     <p>Calculate the quoting activity needed to achieve your sales goals</p>
                 </div>
 
@@ -1761,6 +1994,51 @@
                                 <input type="number" id="salesGoal" placeholder="500000" min="0" step="1000" />
                             </div>
                         </div>
+
+                        <!-- Estimated Quotes Section -->
+                        <div class="estimates-section">
+                            <div class="estimates-header" onclick="toggleEstimates()">
+                                <span>📊 Estimated Quotes (Optional)</span>
+                                <svg id="estimatesArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                            <div id="estimatesContent" class="estimates-content" style="display: none;">
+                                <p class="estimates-hint">Override actual data with your month-end projections. Useful when calculating mid-month.</p>
+                                <div class="estimates-grid">
+                                    <div class="estimate-input-group">
+                                        <label id="estLabelSame">Same Month</label>
+                                        <div class="currency-input small">
+                                            <span>$</span>
+                                            <input type="number" id="estSameMonth" placeholder="Auto" min="0" step="1000" />
+                                        </div>
+                                    </div>
+                                    <div class="estimate-input-group">
+                                        <label id="estLabelOne">+1 Month</label>
+                                        <div class="currency-input small">
+                                            <span>$</span>
+                                            <input type="number" id="estOneMonth" placeholder="Auto" min="0" step="1000" />
+                                        </div>
+                                    </div>
+                                    <div class="estimate-input-group">
+                                        <label id="estLabelTwo">+2 Months</label>
+                                        <div class="currency-input small">
+                                            <span>$</span>
+                                            <input type="number" id="estTwoMonth" placeholder="Auto" min="0" step="1000" />
+                                        </div>
+                                    </div>
+                                    <div class="estimate-input-group">
+                                        <label id="estLabelThree">+3 Months</label>
+                                        <div class="currency-input small">
+                                            <span>$</span>
+                                            <input type="number" id="estThreeMonth" placeholder="Auto" min="0" step="1000" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="clear-estimates-btn" onclick="clearEstimates()">Clear All Estimates</button>
+                            </div>
+                        </div>
+
                         <button class="calculate-btn" id="calculateBtn">
                             <span>Calculate Required Quotes</span>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1788,6 +2066,11 @@
                                 <div class="rate-label" id="labelTwoMonth">+2 MONTHS</div>
                                 <div class="rate-value" id="avgTwoMonth">--%</div>
                                 <div class="rate-desc" id="descTwoMonth">Closes two months later</div>
+                            </div>
+                            <div class="rate-item">
+                                <div class="rate-label" id="labelThreeMonth">+3 MONTHS</div>
+                                <div class="rate-value" id="avgThreeMonth">--%</div>
+                                <div class="rate-desc" id="descThreeMonth">Closes three months later</div>
                             </div>
                         </div>
                     </div>
@@ -1833,7 +2116,8 @@
         <div id="guideTab" class="tab-content">
             <div class="guide-container">
                 <div class="guide-header">
-                    <h1>📖 How To Guide</h1>
+                    <img src="https://cdn.prod.website-files.com/65cfbeb48bcaf136bfe303ff/65d345f1dd92ed1fd590f96f_SC%20LOGO%20(1)%201.avif" alt="Sunday Cool Logo" class="guide-header-logo">
+                    <h1>How To Guide</h1>
                     <p>Everything you need to know about using the Quote Conversion Analytics Dashboard</p>
                 </div>
 
@@ -1948,9 +2232,14 @@
                                 <td>10-20%</td>
                             </tr>
                             <tr>
-                                <td><strong>+3 Months+ %</strong></td>
-                                <td>Revenue closed three or more months later</td>
-                                <td>5-15%</td>
+                                <td><strong>+3 Months %</strong></td>
+                                <td>Revenue closed three months after the quote was sent</td>
+                                <td>3-10%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>+4 Months+ %</strong></td>
+                                <td>Revenue closed four or more months later</td>
+                                <td>2-8%</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1972,12 +2261,16 @@
                             <span><strong>+1 Month</strong> - Standard sales cycle deals</span>
                         </div>
                         <div class="legend-item">
-                            <span class="legend-color" style="background: #a78bfa;"></span>
+                            <span class="legend-color" style="background: #ffb347;"></span>
                             <span><strong>+2 Months</strong> - Longer consideration period deals</span>
                         </div>
                         <div class="legend-item">
-                            <span class="legend-color" style="background: #f472b6;"></span>
-                            <span><strong>+3+ Months</strong> - Extended sales cycles (often larger deals)</span>
+                            <span class="legend-color" style="background: #a855f7;"></span>
+                            <span><strong>+3 Months</strong> - Extended sales cycles</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ff6b6b;"></span>
+                            <span><strong>+4+ Months</strong> - Very long sales cycles (often larger deals)</span>
                         </div>
                     </div>
 
@@ -1991,7 +2284,7 @@
                     <div class="guide-callout warning">
                         <div class="callout-icon">⚠️</div>
                         <div class="callout-content">
-                            <strong>Warning Sign:</strong> Heavy weighting toward +3 Months+ may indicate deals stalling, need for better follow-up, or quotes being sent too early.
+                            <strong>Warning Sign:</strong> Heavy weighting toward +3/+4 Months+ may indicate deals stalling, need for better follow-up, or quotes being sent too early.
                         </div>
                     </div>
                 </div>
@@ -2013,7 +2306,7 @@
                             <tr><td><strong>Month</strong></td><td>The month when quotes were sent</td></tr>
                             <tr><td><strong>Total Quoted</strong></td><td>Total dollar value of all quotes sent that month</td></tr>
                             <tr><td><strong>Total Ratio</strong></td><td>Overall conversion rate ($ Won ÷ $ Quoted)</td></tr>
-                            <tr><td><strong>Same/+1/+2/+3+ Month</strong></td><td>% of quoted $ that closed won in each timing category</td></tr>
+                            <tr><td><strong>Same/+1/+2/+3/+4+ Month</strong></td><td>% of quoted $ that closed won in each timing category</td></tr>
                             <tr><td><strong>Avg Days (Won/Lost)</strong></td><td>Average days to close for won/lost deals from that month</td></tr>
                         </tbody>
                     </table>
@@ -2199,10 +2492,10 @@
         let filteredData = [];
         let charts = {};
 
-        // Chart.js default configuration
-        Chart.defaults.color = '#8899a6';
-        Chart.defaults.borderColor = '#2a3544';
-        Chart.defaults.font.family = "'Outfit', sans-serif";
+        // Chart.js default configuration - Sunday Cool Brand
+        Chart.defaults.color = '#555555';
+        Chart.defaults.borderColor = '#e0ddd5';
+        Chart.defaults.font.family = "'Noto Sans', sans-serif";
 
         // Utility functions
         function parseDate(dateStr) {
@@ -2308,7 +2601,8 @@
                     if (monthDiff <= 0) bookingTiming = 'same';
                     else if (monthDiff === 1) bookingTiming = 'one';
                     else if (monthDiff === 2) bookingTiming = 'two';
-                    else if (monthDiff >= 3) bookingTiming = 'three_plus';
+                    else if (monthDiff === 3) bookingTiming = 'three';
+                    else if (monthDiff >= 4) bookingTiming = 'four_plus';
                 }
                 
                 // Calculate days to close for BOTH Closed Won and Closed Lost (uses actual Close Date)
@@ -2422,13 +2716,8 @@
             const sameValue = closedWon.filter(r => r.bookingTiming === 'same').reduce((sum, r) => sum + r.amount, 0);
             const oneValue = closedWon.filter(r => r.bookingTiming === 'one').reduce((sum, r) => sum + r.amount, 0);
             const twoValue = closedWon.filter(r => r.bookingTiming === 'two').reduce((sum, r) => sum + r.amount, 0);
-            const threePlusValue = closedWon.filter(r => r.bookingTiming === 'three_plus').reduce((sum, r) => sum + r.amount, 0);
-
-            // Counts for display
-            const sameCount = closedWon.filter(r => r.bookingTiming === 'same').length;
-            const oneCount = closedWon.filter(r => r.bookingTiming === 'one').length;
-            const twoCount = closedWon.filter(r => r.bookingTiming === 'two').length;
-            const threePlusCount = closedWon.filter(r => r.bookingTiming === 'three_plus').length;
+            const threeValue = closedWon.filter(r => r.bookingTiming === 'three').reduce((sum, r) => sum + r.amount, 0);
+            const fourPlusValue = closedWon.filter(r => r.bookingTiming === 'four_plus').reduce((sum, r) => sum + r.amount, 0);
 
             document.getElementById('sameMonthPct').textContent = totalQuotedValue > 0 ? formatPercent(sameValue / totalQuotedValue) : '0%';
             document.getElementById('sameMonthCount').textContent = `${formatCurrency(sameValue)}`;
@@ -2436,26 +2725,28 @@
             document.getElementById('oneMonthCount').textContent = `${formatCurrency(oneValue)}`;
             document.getElementById('twoMonthPct').textContent = totalQuotedValue > 0 ? formatPercent(twoValue / totalQuotedValue) : '0%';
             document.getElementById('twoMonthCount').textContent = `${formatCurrency(twoValue)}`;
-            document.getElementById('threePlusPct').textContent = totalQuotedValue > 0 ? formatPercent(threePlusValue / totalQuotedValue) : '0%';
-            document.getElementById('threePlusCount').textContent = `${formatCurrency(threePlusValue)}`;
+            document.getElementById('threeMonthPct').textContent = totalQuotedValue > 0 ? formatPercent(threeValue / totalQuotedValue) : '0%';
+            document.getElementById('threeMonthCount').textContent = `${formatCurrency(threeValue)}`;
+            document.getElementById('fourPlusPct').textContent = totalQuotedValue > 0 ? formatPercent(fourPlusValue / totalQuotedValue) : '0%';
+            document.getElementById('fourPlusCount').textContent = `${formatCurrency(fourPlusValue)}`;
 
             // Update timing donut chart with dollar values
-            updateTimingChart([sameValue, oneValue, twoValue, threePlusValue]);
+            updateTimingChart([sameValue, oneValue, twoValue, threeValue, fourPlusValue]);
         }
 
         function updateTimingChart(data) {
             const ctx = document.getElementById('timingChart').getContext('2d');
-            
+
             if (charts.timing) charts.timing.destroy();
-            
+
             charts.timing = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Same Month', '+1 Month', '+2 Months', '+3 Months'],
+                    labels: ['Same Month', '+1 Month', '+2 Months', '+3 Months', '+4 Months'],
                     datasets: [{
                         data: data,
-                        backgroundColor: ['#00d4aa', '#00a8ff', '#ffb347', '#ff6b6b'],
-                        borderColor: '#1a2230',
+                        backgroundColor: ['#53cfdd', '#f6912d', '#fddd00', '#e96a6a', '#888888'],
+                        borderColor: '#ffffff',
                         borderWidth: 3
                     }]
                 },
@@ -2488,12 +2779,12 @@
             if (charts.stage) charts.stage.destroy();
 
             const stageColors = {
-                'Closed Won': '#00d4aa',
-                'Closed Lost': '#ff6b6b',
-                'Quote Sent': '#00a8ff',
-                'Production Schedule/Quote Approval': '#a855f7',
-                'Needs Quoted': '#ffb347',
-                'Lead In': '#ec4899'
+                'Closed Won': '#53cfdd',
+                'Closed Lost': '#e96a6a',
+                'Quote Sent': '#f6912d',
+                'Production Schedule/Quote Approval': '#fddd00',
+                'Needs Quoted': '#ffeec6',
+                'Lead In': '#888888'
             };
 
             charts.stage = new Chart(ctx, {
@@ -2502,8 +2793,8 @@
                     labels: Object.keys(stages),
                     datasets: [{
                         data: Object.values(stages),
-                        backgroundColor: Object.keys(stages).map(s => stageColors[s] || '#5c6b7a'),
-                        borderColor: '#1a2230',
+                        backgroundColor: Object.keys(stages).map(s => stageColors[s] || '#888888'),
+                        borderColor: '#ffffff',
                         borderWidth: 3
                     }]
                 },
@@ -2563,8 +2854,8 @@
                         {
                             label: 'Total Quotes',
                             data: totalData,
-                            backgroundColor: 'rgba(0, 168, 255, 0.7)',
-                            borderColor: '#00a8ff',
+                            backgroundColor: 'rgba(246, 145, 45, 0.7)',
+                            borderColor: '#f6912d',
                             borderWidth: 1,
                             yAxisID: 'y',
                             order: 2
@@ -2573,10 +2864,10 @@
                             label: 'Win Rate %',
                             data: winRateData,
                             type: 'line',
-                            borderColor: '#00d4aa',
-                            backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                            borderColor: '#53cfdd',
+                            backgroundColor: 'rgba(83, 207, 221, 0.1)',
                             borderWidth: 3,
-                            pointBackgroundColor: '#00d4aa',
+                            pointBackgroundColor: '#53cfdd',
                             pointRadius: 4,
                             tension: 0.3,
                             fill: true,
@@ -2642,13 +2933,13 @@
             filteredData.forEach(row => {
                 if (!row.quoteSentMonthKey) return;
                 if (!monthlyTiming[row.quoteSentMonthKey]) {
-                    monthlyTiming[row.quoteSentMonthKey] = { 
+                    monthlyTiming[row.quoteSentMonthKey] = {
                         totalQuoted: 0,
-                        same: 0, one: 0, two: 0, three_plus: 0 
+                        same: 0, one: 0, two: 0, three: 0, four_plus: 0
                     };
                 }
                 monthlyTiming[row.quoteSentMonthKey].totalQuoted += row.amount;
-                
+
                 if (row.stage === 'Closed Won' && row.bookingTiming) {
                     monthlyTiming[row.quoteSentMonthKey][row.bookingTiming] += row.amount;
                 }
@@ -2658,7 +2949,7 @@
             const labels = sortedMonths.map(formatMonthLabel);
 
             const ctx = document.getElementById('timingTrendChart').getContext('2d');
-            
+
             if (charts.timingTrend) charts.timingTrend.destroy();
 
             charts.timingTrend = new Chart(ctx, {
@@ -2669,25 +2960,31 @@
                         {
                             label: 'Same Month',
                             data: sortedMonths.map(m => (monthlyTiming[m].same / monthlyTiming[m].totalQuoted) * 100),
-                            backgroundColor: '#00d4aa',
+                            backgroundColor: '#53cfdd',
                             stack: 'timing'
                         },
                         {
                             label: '+1 Month',
                             data: sortedMonths.map(m => (monthlyTiming[m].one / monthlyTiming[m].totalQuoted) * 100),
-                            backgroundColor: '#00a8ff',
+                            backgroundColor: '#f6912d',
                             stack: 'timing'
                         },
                         {
                             label: '+2 Months',
                             data: sortedMonths.map(m => (monthlyTiming[m].two / monthlyTiming[m].totalQuoted) * 100),
-                            backgroundColor: '#ffb347',
+                            backgroundColor: '#fddd00',
                             stack: 'timing'
                         },
                         {
                             label: '+3 Months',
-                            data: sortedMonths.map(m => (monthlyTiming[m].three_plus / monthlyTiming[m].totalQuoted) * 100),
-                            backgroundColor: '#ff6b6b',
+                            data: sortedMonths.map(m => (monthlyTiming[m].three / monthlyTiming[m].totalQuoted) * 100),
+                            backgroundColor: '#e96a6a',
+                            stack: 'timing'
+                        },
+                        {
+                            label: '+4 Months',
+                            data: sortedMonths.map(m => (monthlyTiming[m].four_plus / monthlyTiming[m].totalQuoted) * 100),
+                            backgroundColor: '#888888',
                             stack: 'timing'
                         }
                     ]
@@ -2764,8 +3061,8 @@
                     datasets: [{
                         label: 'Revenue',
                         data: data,
-                        backgroundColor: 'rgba(168, 85, 247, 0.7)',
-                        borderColor: '#a855f7',
+                        backgroundColor: 'rgba(83, 207, 221, 0.7)',
+                        borderColor: '#53cfdd',
                         borderWidth: 1
                     }]
                 },
@@ -2926,10 +3223,10 @@
                         {
                             label: 'Days to Win',
                             data: avgWonDays,
-                            borderColor: '#00d4aa',
-                            backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                            borderColor: '#53cfdd',
+                            backgroundColor: 'rgba(83, 207, 221, 0.1)',
                             borderWidth: 3,
-                            pointBackgroundColor: '#00d4aa',
+                            pointBackgroundColor: '#53cfdd',
                             pointRadius: 4,
                             tension: 0.3,
                             fill: false,
@@ -2938,10 +3235,10 @@
                         {
                             label: 'Days to Lose',
                             data: avgLostDays,
-                            borderColor: '#ffb347',
-                            backgroundColor: 'rgba(255, 179, 71, 0.1)',
+                            borderColor: '#e96a6a',
+                            backgroundColor: 'rgba(233, 106, 106, 0.1)',
                             borderWidth: 3,
-                            pointBackgroundColor: '#ffb347',
+                            pointBackgroundColor: '#e96a6a',
                             pointRadius: 4,
                             tension: 0.3,
                             fill: false,
@@ -3035,13 +3332,13 @@
                         {
                             label: 'Days to Win',
                             data: sortedOwners.map(o => o.avgWonDays),
-                            backgroundColor: '#00d4aa',
+                            backgroundColor: '#53cfdd',
                             borderWidth: 0
                         },
                         {
                             label: 'Days to Lose',
                             data: sortedOwners.map(o => o.avgLostDays),
-                            backgroundColor: '#ffb347',
+                            backgroundColor: '#e96a6a',
                             borderWidth: 0
                         }
                     ]
@@ -3114,7 +3411,7 @@
                         month, year,
                         totalQuoted: 0,
                         totalWon: 0,
-                        timingValue: { same: 0, one: 0, two: 0, three_plus: 0 },
+                        timingValue: { same: 0, one: 0, two: 0, three: 0, four_plus: 0 },
                         wonDaysTotal: 0,
                         wonDaysCount: 0,
                         lostDaysTotal: 0,
@@ -3326,7 +3623,7 @@
 
         function updateOwnerTable() {
             const ownerStats = {};
-            
+
             filteredData.forEach(row => {
                 if (!ownerStats[row.owner]) {
                     ownerStats[row.owner] = {
@@ -3335,7 +3632,7 @@
                         wonCount: 0,
                         lostCount: 0,
                         wonValue: 0,
-                        timingValue: { same: 0, one: 0, two: 0, three_plus: 0 },
+                        timingValue: { same: 0, one: 0, two: 0, three: 0, four_plus: 0 },
                         wonDaysTotal: 0,
                         wonDaysCount: 0,
                         lostDaysTotal: 0,
@@ -3378,11 +3675,11 @@
                 const winRate = totalClosed > 0 ? stats.wonCount / totalClosed : 0;
                 const totalQuoted = stats.totalQuoted;
                 const timing = stats.timingValue;
-                
+
                 // Average days to close - separate for Won and Lost
                 const avgDaysWon = stats.wonDaysCount > 0 ? Math.round(stats.wonDaysTotal / stats.wonDaysCount) : null;
                 const avgDaysLost = stats.lostDaysCount > 0 ? Math.round(stats.lostDaysTotal / stats.lostDaysCount) : null;
-                
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="owner-name">${owner}</td>
@@ -3401,7 +3698,8 @@
                     <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.same / totalQuoted) : '-'}</td>
                     <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.one / totalQuoted) : '-'}</td>
                     <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.two / totalQuoted) : '-'}</td>
-                    <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.three_plus / totalQuoted) : '-'}</td>
+                    <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.three / totalQuoted) : '-'}</td>
+                    <td class="stat-percent">${totalQuoted > 0 ? formatPercent(timing.four_plus / totalQuoted) : '-'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -3411,14 +3709,14 @@
             // Group by quote sent month - using DOLLAR VALUES
             // Formula: $ Closed Won in timing bucket / $ Total Quoted that month
             const monthlyTiming = {};
-            
+
             filteredData.forEach(row => {
                 if (!row.quoteSentMonthKey) return;
                 if (!monthlyTiming[row.quoteSentMonthKey]) {
                     monthlyTiming[row.quoteSentMonthKey] = {
                         totalQuoted: 0,
                         totalWonValue: 0,
-                        timingValue: { same: 0, one: 0, two: 0, three_plus: 0 },
+                        timingValue: { same: 0, one: 0, two: 0, three: 0, four_plus: 0 },
                         pendingValue: 0,
                         pendingCount: 0,
                         wonDaysTotal: 0,
@@ -3429,7 +3727,7 @@
                 }
                 // Add all quoted amounts to total
                 monthlyTiming[row.quoteSentMonthKey].totalQuoted += row.amount;
-                
+
                 if (row.stage === 'Closed Won') {
                     monthlyTiming[row.quoteSentMonthKey].totalWonValue += row.amount;
                     if (row.bookingTiming) {
@@ -3463,20 +3761,20 @@
                 const stats = monthlyTiming[monthKey];
                 const totalQuoted = stats.totalQuoted;
                 const timing = stats.timingValue;
-                
+
                 // Format month nicely
                 const [year, month] = monthKey.split('-');
                 const monthDate = new Date(year, month - 1, 1);
                 const monthLabel = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                
+
                 // Total ratio = total won value / total quoted value
                 const totalWonValue = stats.totalWonValue;
                 const totalRatio = totalQuoted > 0 ? totalWonValue / totalQuoted : 0;
-                
+
                 // Average days to close - separate for Won and Lost
                 const avgDaysWon = stats.wonDaysCount > 0 ? Math.round(stats.wonDaysTotal / stats.wonDaysCount) : null;
                 const avgDaysLost = stats.lostDaysCount > 0 ? Math.round(stats.lostDaysTotal / stats.lostDaysCount) : null;
-                
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="owner-name">${monthLabel}</td>
@@ -3487,7 +3785,8 @@
                     <td class="stat-percent" style="color: var(--accent-primary);">${totalQuoted > 0 ? formatPercent(timing.same / totalQuoted) : '-'}</td>
                     <td class="stat-percent" style="color: var(--accent-secondary);">${totalQuoted > 0 ? formatPercent(timing.one / totalQuoted) : '-'}</td>
                     <td class="stat-percent" style="color: var(--accent-warning);">${totalQuoted > 0 ? formatPercent(timing.two / totalQuoted) : '-'}</td>
-                    <td class="stat-percent" style="color: var(--accent-danger);">${totalQuoted > 0 ? formatPercent(timing.three_plus / totalQuoted) : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-purple);">${totalQuoted > 0 ? formatPercent(timing.three / totalQuoted) : '-'}</td>
+                    <td class="stat-percent" style="color: var(--accent-danger);">${totalQuoted > 0 ? formatPercent(timing.four_plus / totalQuoted) : '-'}</td>
                     <td class="stat-percent" style="color: var(--text-muted);">${formatCurrency(stats.pendingValue)}</td>
                 `;
                 tbody.appendChild(row);
@@ -3513,10 +3812,10 @@
         function getHistoricalAverages(owner = 'all') {
             // Calculate average conversion rates across all months, optionally filtered by owner
             const monthlyStats = {};
-            
+
             // Use rawData to get all historical data, then filter by owner if specified
             const dataToUse = owner === 'all' ? rawData : rawData.filter(row => row.owner === owner);
-            
+
             dataToUse.forEach(row => {
                 if (!row.quoteSentMonthKey) return;
                 if (!monthlyStats[row.quoteSentMonthKey]) {
@@ -3524,11 +3823,12 @@
                         totalQuoted: 0,
                         sameMonth: 0,
                         oneMonth: 0,
-                        twoMonth: 0
+                        twoMonth: 0,
+                        threeMonth: 0
                     };
                 }
                 monthlyStats[row.quoteSentMonthKey].totalQuoted += row.amount;
-                
+
                 if (row.stage === 'Closed Won' && row.bookingTiming) {
                     if (row.bookingTiming === 'same') {
                         monthlyStats[row.quoteSentMonthKey].sameMonth += row.amount;
@@ -3536,13 +3836,15 @@
                         monthlyStats[row.quoteSentMonthKey].oneMonth += row.amount;
                     } else if (row.bookingTiming === 'two') {
                         monthlyStats[row.quoteSentMonthKey].twoMonth += row.amount;
+                    } else if (row.bookingTiming === 'three') {
+                        monthlyStats[row.quoteSentMonthKey].threeMonth += row.amount;
                     }
                 }
             });
 
             // Calculate averages
             const months = Object.keys(monthlyStats);
-            let totalSameRate = 0, totalOneRate = 0, totalTwoRate = 0;
+            let totalSameRate = 0, totalOneRate = 0, totalTwoRate = 0, totalThreeRate = 0;
             let validMonths = 0;
 
             months.forEach(month => {
@@ -3551,6 +3853,7 @@
                     totalSameRate += stats.sameMonth / stats.totalQuoted;
                     totalOneRate += stats.oneMonth / stats.totalQuoted;
                     totalTwoRate += stats.twoMonth / stats.totalQuoted;
+                    totalThreeRate += stats.threeMonth / stats.totalQuoted;
                     validMonths++;
                 }
             });
@@ -3558,7 +3861,8 @@
             return {
                 sameMonth: validMonths > 0 ? totalSameRate / validMonths : 0,
                 oneMonth: validMonths > 0 ? totalOneRate / validMonths : 0,
-                twoMonth: validMonths > 0 ? totalTwoRate / validMonths : 0
+                twoMonth: validMonths > 0 ? totalTwoRate / validMonths : 0,
+                threeMonth: validMonths > 0 ? totalThreeRate / validMonths : 0
             };
         }
 
@@ -3592,25 +3896,53 @@
             // Same month rate: use target month's same-month rate
             // +1 month rate: use previous month's +1 month rate (quotes sent in Dec close in Jan)
             // +2 month rate: use 2-months-prior's +2 month rate (quotes sent in Nov close in Jan)
-            
+            // +3 month rate: use 3-months-prior's +3 month rate (quotes sent in Oct close in Jan)
+
             const prevMonth1 = targetMonth === 1 ? 12 : targetMonth - 1;
             const prevMonth2 = targetMonth <= 2 ? 12 + targetMonth - 2 : targetMonth - 2;
-            
+            const prevMonth3 = targetMonth <= 3 ? 12 + targetMonth - 3 : targetMonth - 3;
+
             return {
                 sameMonth: getMonthSpecificRate(targetMonth, 'same', owner),
                 oneMonth: getMonthSpecificRate(prevMonth1, 'one', owner),
                 twoMonth: getMonthSpecificRate(prevMonth2, 'two', owner),
+                threeMonth: getMonthSpecificRate(prevMonth3, 'three', owner),
                 // Store which months these rates come from for display
                 sameMonthName: getMonthName(targetMonth),
                 oneMonthName: getMonthName(prevMonth1),
-                twoMonthName: getMonthName(prevMonth2)
+                twoMonthName: getMonthName(prevMonth2),
+                threeMonthName: getMonthName(prevMonth3)
             };
         }
 
         function getMonthName(monthNum) {
-            const months = ['', 'January', 'February', 'March', 'April', 'May', 'June', 
+            const months = ['', 'January', 'February', 'March', 'April', 'May', 'June',
                            'July', 'August', 'September', 'October', 'November', 'December'];
             return months[monthNum] || '';
+        }
+
+        function toggleEstimates() {
+            const content = document.getElementById('estimatesContent');
+            const arrow = document.getElementById('estimatesArrow');
+            const isHidden = content.style.display === 'none';
+            content.style.display = isHidden ? 'block' : 'none';
+            arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        function clearEstimates() {
+            document.getElementById('estSameMonth').value = '';
+            document.getElementById('estOneMonth').value = '';
+            document.getElementById('estTwoMonth').value = '';
+            document.getElementById('estThreeMonth').value = '';
+        }
+
+        function getEstimatedOrActual(inputId, monthKey, owner) {
+            const input = document.getElementById(inputId);
+            const estimated = parseFloat(input?.value);
+            if (!isNaN(estimated) && estimated >= 0) {
+                return estimated;
+            }
+            return getExistingQuotesForMonth(monthKey, owner);
         }
 
         function getExistingQuotesForMonth(monthKey, owner = 'all') {
@@ -3638,65 +3970,85 @@
         function updateCalculatorAverages() {
             const selectedOwner = document.getElementById('calcOwnerFilter').value;
             const targetMonthInput = document.getElementById('targetMonth').value;
-            
+
             // If no target month selected, show overall averages
             if (!targetMonthInput) {
                 const averages = getHistoricalAverages(selectedOwner);
-                const hasData = rawData.length > 0 && (averages.sameMonth > 0 || averages.oneMonth > 0 || averages.twoMonth > 0);
-                
+                const hasData = rawData.length > 0 && (averages.sameMonth > 0 || averages.oneMonth > 0 || averages.twoMonth > 0 || averages.threeMonth > 0);
+
                 if (hasData) {
                     document.getElementById('avgSameMonth').textContent = (averages.sameMonth * 100).toFixed(1) + '%';
                     document.getElementById('avgOneMonth').textContent = (averages.oneMonth * 100).toFixed(1) + '%';
                     document.getElementById('avgTwoMonth').textContent = (averages.twoMonth * 100).toFixed(1) + '%';
+                    document.getElementById('avgThreeMonth').textContent = (averages.threeMonth * 100).toFixed(1) + '%';
                 } else {
                     document.getElementById('avgSameMonth').textContent = 'No data';
                     document.getElementById('avgOneMonth').textContent = 'No data';
                     document.getElementById('avgTwoMonth').textContent = 'No data';
+                    document.getElementById('avgThreeMonth').textContent = 'No data';
                 }
-                
+
                 const ownerName = selectedOwner === 'all' ? 'Team Average' : selectedOwner;
                 document.getElementById('ratesSubtitle').innerHTML = `Based on <strong>${ownerName}</strong>, select a target month to see month-specific rates:`;
-                
+
                 // Reset labels and descriptions to generic
                 document.getElementById('labelSameMonth').textContent = 'SAME MONTH';
                 document.getElementById('labelOneMonth').textContent = '+1 MONTH';
                 document.getElementById('labelTwoMonth').textContent = '+2 MONTHS';
+                document.getElementById('labelThreeMonth').textContent = '+3 MONTHS';
                 document.getElementById('descSameMonth').textContent = 'Closes in the month quote was sent';
                 document.getElementById('descOneMonth').textContent = 'Closes the following month';
                 document.getElementById('descTwoMonth').textContent = 'Closes two months later';
+                document.getElementById('descThreeMonth').textContent = 'Closes three months later';
+
+                // Reset estimate labels to generic
+                document.getElementById('estLabelSame').textContent = 'Same Month';
+                document.getElementById('estLabelOne').textContent = '+1 Month';
+                document.getElementById('estLabelTwo').textContent = '+2 Months';
+                document.getElementById('estLabelThree').textContent = '+3 Months';
                 return;
             }
-            
+
             // Get month-specific rates based on target month
             const [targetYear, targetMonthNum] = targetMonthInput.split('-').map(Number);
             const averages = getMonthSpecificAverages(targetMonthNum, selectedOwner);
             const targetMonthName = getMonthName(targetMonthNum);
-            
-            const hasData = rawData.length > 0 && (averages.sameMonth > 0 || averages.oneMonth > 0 || averages.twoMonth > 0);
-            
+
+            const hasData = rawData.length > 0 && (averages.sameMonth > 0 || averages.oneMonth > 0 || averages.twoMonth > 0 || averages.threeMonth > 0);
+
             if (hasData) {
                 document.getElementById('avgSameMonth').textContent = (averages.sameMonth * 100).toFixed(1) + '%';
                 document.getElementById('avgOneMonth').textContent = (averages.oneMonth * 100).toFixed(1) + '%';
                 document.getElementById('avgTwoMonth').textContent = (averages.twoMonth * 100).toFixed(1) + '%';
+                document.getElementById('avgThreeMonth').textContent = (averages.threeMonth * 100).toFixed(1) + '%';
             } else {
                 document.getElementById('avgSameMonth').textContent = 'No data';
                 document.getElementById('avgOneMonth').textContent = 'No data';
                 document.getElementById('avgTwoMonth').textContent = 'No data';
+                document.getElementById('avgThreeMonth').textContent = 'No data';
             }
-            
+
             // Update labels to show which months the rates are from
             document.getElementById('labelSameMonth').textContent = `${averages.sameMonthName.toUpperCase()} → ${targetMonthName.toUpperCase()}`;
             document.getElementById('labelOneMonth').textContent = `${averages.oneMonthName.toUpperCase()} → ${targetMonthName.toUpperCase()}`;
             document.getElementById('labelTwoMonth').textContent = `${averages.twoMonthName.toUpperCase()} → ${targetMonthName.toUpperCase()}`;
-            
+            document.getElementById('labelThreeMonth').textContent = `${averages.threeMonthName.toUpperCase()} → ${targetMonthName.toUpperCase()}`;
+
             // Update descriptions
             document.getElementById('descSameMonth').textContent = `Avg same-month close rate for ${averages.sameMonthName}`;
             document.getElementById('descOneMonth').textContent = `Avg +1 month close rate for ${averages.oneMonthName}`;
             document.getElementById('descTwoMonth').textContent = `Avg +2 months close rate for ${averages.twoMonthName}`;
-            
+            document.getElementById('descThreeMonth').textContent = `Avg +3 months close rate for ${averages.threeMonthName}`;
+
             // Update subtitle
             const ownerName = selectedOwner === 'all' ? 'Team Average' : selectedOwner;
             document.getElementById('ratesSubtitle').innerHTML = `Based on <strong>${ownerName}</strong> historical rates for closing in <strong>${targetMonthName}</strong>:`;
+
+            // Update estimate labels to show specific months
+            document.getElementById('estLabelSame').textContent = `${averages.sameMonthName} (Same Month)`;
+            document.getElementById('estLabelOne').textContent = `${averages.oneMonthName} (+1 Month)`;
+            document.getElementById('estLabelTwo').textContent = `${averages.twoMonthName} (+2 Months)`;
+            document.getElementById('estLabelThree').textContent = `${averages.threeMonthName} (+3 Months)`;
         }
 
         function populateCalcOwnerFilter() {
@@ -3722,23 +4074,23 @@
             }
 
             const [targetYear, targetMonthNum] = targetMonthInput.split('-').map(Number);
-            
+
             // Use month-specific historical rates for more accurate projections
             const averages = getMonthSpecificAverages(targetMonthNum, selectedOwner);
-            
+
             // Check if we have valid historical data to make calculations
-            const totalConversionRate = averages.sameMonth + averages.oneMonth + averages.twoMonth;
+            const totalConversionRate = averages.sameMonth + averages.oneMonth + averages.twoMonth + averages.threeMonth;
             if (totalConversionRate <= 0 || rawData.length === 0) {
                 document.getElementById('resultsContent').innerHTML = `
                     <div class="result-summary" style="background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b;">
                         <div class="goal-text" style="color: #ff6b6b;">⚠️ Insufficient Historical Data</div>
                         <div style="color: var(--text-secondary); margin-top: 12px; font-size: 0.95rem;">
-                            To use the Quote Calculator, you need to first load your CSV data on the Dashboard tab. 
+                            To use the Quote Calculator, you need to first load your CSV data on the Dashboard tab.
                             The calculator uses your historical conversion rates to make projections.
                         </div>
                         <div style="margin-top: 16px;">
-                            <button onclick="document.querySelector('[data-tab=dashboard]').click();" 
-                                    style="background: var(--gradient-1); border: none; color: var(--bg-primary); 
+                            <button onclick="document.querySelector('[data-tab=dashboard]').click();"
+                                    style="background: var(--gradient-1); border: none; color: var(--bg-primary);
                                            padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
                                 Go to Dashboard & Load Data
                             </button>
@@ -3750,7 +4102,7 @@
             }
 
             const targetMonthKey = getMonthKeyFromDate(targetYear, targetMonthNum - 1);
-            
+
             // Get month keys for previous months
             const prevMonth1Key = getMonthKeyFromDate(
                 targetMonthNum === 1 ? targetYear - 1 : targetYear,
@@ -3760,18 +4112,24 @@
                 targetMonthNum <= 2 ? targetYear - 1 : targetYear,
                 targetMonthNum <= 2 ? 12 - (2 - targetMonthNum) - 1 : targetMonthNum - 3
             );
-            
-            // Get existing quotes for each month (filtered by owner if specified)
-            const existingTargetMonth = getExistingQuotesForMonth(targetMonthKey, selectedOwner);
-            const existingPrevMonth1 = getExistingQuotesForMonth(prevMonth1Key, selectedOwner);
-            const existingPrevMonth2 = getExistingQuotesForMonth(prevMonth2Key, selectedOwner);
+            const prevMonth3Key = getMonthKeyFromDate(
+                targetMonthNum <= 3 ? targetYear - 1 : targetYear,
+                targetMonthNum <= 3 ? 12 - (3 - targetMonthNum) - 1 : targetMonthNum - 4
+            );
+
+            // Get existing quotes for each month (use estimates if provided, otherwise actual data)
+            const existingTargetMonth = getEstimatedOrActual('estSameMonth', targetMonthKey, selectedOwner);
+            const existingPrevMonth1 = getEstimatedOrActual('estOneMonth', prevMonth1Key, selectedOwner);
+            const existingPrevMonth2 = getEstimatedOrActual('estTwoMonth', prevMonth2Key, selectedOwner);
+            const existingPrevMonth3 = getEstimatedOrActual('estThreeMonth', prevMonth3Key, selectedOwner);
 
             // Calculate expected contributions from existing quotes
             const contributionFromSame = existingTargetMonth * averages.sameMonth;
             const contributionFromPrev1 = existingPrevMonth1 * averages.oneMonth;
             const contributionFromPrev2 = existingPrevMonth2 * averages.twoMonth;
+            const contributionFromPrev3 = existingPrevMonth3 * averages.threeMonth;
 
-            const totalExistingContribution = contributionFromSame + contributionFromPrev1 + contributionFromPrev2;
+            const totalExistingContribution = contributionFromSame + contributionFromPrev1 + contributionFromPrev2 + contributionFromPrev3;
             const remainingGoal = salesGoal - totalExistingContribution;
 
             // Build results HTML
@@ -3791,8 +4149,42 @@
             const hasTargetMonthData = existingTargetMonth > 0;
             const hasPrev1Data = existingPrevMonth1 > 0;
             const hasPrev2Data = existingPrevMonth2 > 0;
+            const hasPrev3Data = existingPrevMonth3 > 0;
 
-            // Previous Month 2 (earliest)
+            // Previous Month 3 (earliest - +3 Months)
+            if (hasPrev3Data) {
+                resultsHtml += `
+                    <div class="result-month existing">
+                        <div>
+                            <div class="month-label">${formatMonthFromKey(prevMonth3Key)}</div>
+                            <div class="month-type">+3 Months (Already Quoted)</div>
+                        </div>
+                        <div class="month-arrow">→</div>
+                        <div class="month-contribution">
+                            <div class="contribution-amount">${formatCurrency(contributionFromPrev3)}</div>
+                            <div class="contribution-rate">${formatCurrency(existingPrevMonth3)} quoted × ${(averages.threeMonth * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+            } else if (averages.threeMonth > 0) {
+                const neededPrev3 = remainingGoal > 0 && totalConversionRate > 0 ? remainingGoal / totalConversionRate : 0;
+                const contributionPrev3Calc = neededPrev3 * averages.threeMonth;
+                resultsHtml += `
+                    <div class="result-month needed">
+                        <div>
+                            <div class="month-label">${formatMonthFromKey(prevMonth3Key)}</div>
+                            <div class="month-type">+3 Months (Need to Quote)</div>
+                        </div>
+                        <div class="month-arrow">→</div>
+                        <div class="quote-needed">
+                            <div class="quote-amount needed">${formatCurrency(neededPrev3)}</div>
+                            <div class="quote-label">Contributes ${formatCurrency(contributionPrev3Calc)} (${(averages.threeMonth * 100).toFixed(1)}%)</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Previous Month 2 (+2 Months)
             if (hasPrev2Data) {
                 resultsHtml += `
                     <div class="result-month existing">
@@ -3860,7 +4252,7 @@
             }
 
             // Target Month (Same Month)
-            const adjustedRemainingGoal = salesGoal - contributionFromPrev1 - contributionFromPrev2;
+            const adjustedRemainingGoal = salesGoal - contributionFromPrev1 - contributionFromPrev2 - contributionFromPrev3;
             
             if (hasTargetMonthData) {
                 const stillNeeded = adjustedRemainingGoal - contributionFromSame;
@@ -3998,7 +4390,88 @@
 
         // Event listeners
         document.getElementById('yoyMetric').addEventListener('change', updateYearOverYearChart);
-        
+
+        // Salesforce fetch handler
+        document.getElementById('fetchSalesforce').addEventListener('click', async function() {
+            const button = this;
+            const originalHTML = button.innerHTML;
+
+            // Show loading state
+            button.disabled = true;
+            button.classList.add('loading-btn');
+            button.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                </svg>
+                Fetching...
+            `;
+            document.getElementById('loading').classList.add('active');
+
+            try {
+                const response = await fetch('/api/salesforce');
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to fetch data from Salesforce');
+                }
+
+                // Process data exactly like CSV upload
+                rawData = processData(result.data);
+                filteredData = [...rawData];
+
+                populateOwnerFilter();
+                setDateRange();
+
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+
+                updateDashboard();
+
+                // Show success notification
+                showNotification(`Loaded ${result.recordCount.toLocaleString()} opportunities from Salesforce`, 'success');
+
+            } catch (error) {
+                console.error('Salesforce fetch error:', error);
+                showNotification(error.message || 'Failed to fetch from Salesforce', 'error');
+            } finally {
+                // Restore button state
+                button.disabled = false;
+                button.classList.remove('loading-btn');
+                button.innerHTML = originalHTML;
+                document.getElementById('loading').classList.remove('active');
+            }
+        });
+
+        // Notification helper function
+        function showNotification(message, type = 'info') {
+            // Remove existing notification if any
+            const existing = document.getElementById('notification');
+            if (existing) existing.remove();
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    ${type === 'success' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' :
+                      type === 'error' ? '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' :
+                      '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'}
+                </svg>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+
+            // Trigger animation
+            setTimeout(() => notification.classList.add('show'), 10);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
         document.getElementById('csvFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;

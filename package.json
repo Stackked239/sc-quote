@@ -1,0 +1,12 @@
+{
+  "name": "sc-quote-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Quote Conversion Analytics Dashboard with Salesforce integration",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  }
+}
