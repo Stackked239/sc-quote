@@ -1,6 +1,12 @@
 # Dependencies
 node_modules/
 
+# Test files with credentials
+test-api.js
+
+# Data files
+*.csv
+
 # Environment files
 .env
 .env.local
