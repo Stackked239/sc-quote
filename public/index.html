@@ -1836,9 +1836,14 @@
                     <div class="subtitle">Quotes sent in period</div>
                 </div>
                 <div class="summary-card secondary">
-                    <div class="label">Win Rate</div>
+                    <div class="label">Win Rate (Closed)</div>
                     <div class="value" id="winRate">0%</div>
                     <div class="subtitle" id="winRateSub">0 won of 0 closed</div>
+                </div>
+                <div class="summary-card secondary">
+                    <div class="label">Win Rate (All Quoted)</div>
+                    <div class="value" id="winRateQuoted">0%</div>
+                    <div class="subtitle" id="winRateQuotedSub">0 won of 0 quoted</div>
                 </div>
                 <div class="summary-card warning">
                     <div class="label">Total Value Won</div>
@@ -2035,7 +2040,9 @@
                                 <th>Total Quoted $</th>
                                 <th>Closed Won</th>
                                 <th>Closed Lost</th>
-                                <th>Win Rate</th>
+                                <th>Still Open</th>
+                                <th>Win % (Closed)</th>
+                                <th>Win % (Quoted)</th>
                                 <th>Value Won</th>
                                 <th>Days (Won)</th>
                                 <th>Days (Lost)</th>
@@ -2280,9 +2287,14 @@
                             <p>The total number of quotes sent during the selected period.</p>
                         </div>
                         <div class="metric-explain">
-                            <h4>Win Rate</h4>
-                            <p>Percentage of closed opportunities that were won.</p>
+                            <h4>Win Rate (Closed)</h4>
+                            <p>Percentage of closed opportunities that were won. Quotes still open are left out, so leaving deals open instead of closing them lost raises this number.</p>
                             <code>Won Count ÷ (Won + Lost Count) × 100</code>
+                        </div>
+                        <div class="metric-explain">
+                            <h4>Win Rate (All Quoted)</h4>
+                            <p>Percentage of every quote sent that was won. Still-open quotes count as not won, so this can't be inflated by keeping deals open. Recent months read low until their quotes close.</p>
+                            <code>Won Count ÷ Total Quotes × 100</code>
                         </div>
                         <div class="metric-explain">
                             <h4>Total Conversion Ratio</h4>
@@ -2461,7 +2473,9 @@
                         <tbody>
                             <tr><td><strong>Owner</strong></td><td>Sales rep name</td></tr>
                             <tr><td><strong>Total Quoted $</strong></td><td>Total value of quotes sent</td></tr>
-                            <tr><td><strong>Win Rate</strong></td><td>% of closed deals that were won</td></tr>
+                            <tr><td><strong>Still Open</strong></td><td>Quotes not yet Closed Won or Closed Lost</td></tr>
+                            <tr><td><strong>Win % (Closed)</strong></td><td>% of closed deals that were won (ignores open quotes)</td></tr>
+                            <tr><td><strong>Win % (Quoted)</strong></td><td>% of all quotes that were won (open quotes count as not won)</td></tr>
                             <tr><td><strong>Value Won</strong></td><td>Total dollar value of won deals</td></tr>
                             <tr><td><strong>Days (Won/Lost)</strong></td><td>Average days to close</td></tr>
                             <tr><td><strong>Timing %</strong></td><td>Conversion rates by timing category</td></tr>
@@ -2563,7 +2577,8 @@
                             <tr><td><strong>Days to Close</strong></td><td>Number of days between quote sent and opportunity close</td></tr>
                             <tr><td><strong>Quote Sent Date</strong></td><td>Timestamp when a formal quote was delivered to the prospect</td></tr>
                             <tr><td><strong>Sales Velocity</strong></td><td>Speed at which deals move through pipeline to close</td></tr>
-                            <tr><td><strong>Win Rate</strong></td><td>Percentage of closed deals that were won (by count)</td></tr>
+                            <tr><td><strong>Win Rate (Closed)</strong></td><td>Won ÷ (Won + Lost), by count. Ignores open quotes</td></tr>
+                            <tr><td><strong>Win Rate (All Quoted)</strong></td><td>Won ÷ all quotes sent, by count. Open quotes count as not won</td></tr>
                             <tr><td><strong>YoY</strong></td><td>Year-over-Year comparison of the same time period</td></tr>
                         </tbody>
                     </table>
@@ -2764,6 +2779,8 @@
             const closedLost = filteredData.filter(r => r.stage === 'Closed Lost');
             const totalClosed = closedWon.length + closedLost.length;
             const winRate = totalClosed > 0 ? closedWon.length / totalClosed : 0;
+            // Counting still-open quotes as not won, so leaving deals open can't inflate the rate
+            const winRateQuoted = totalQuotes > 0 ? closedWon.length / totalQuotes : 0;
             const totalWonValue = closedWon.reduce((sum, r) => sum + r.amount, 0);
             const avgDeal = closedWon.length > 0 ? totalWonValue / closedWon.length : 0;
             
@@ -2787,6 +2804,8 @@
             document.getElementById('totalQuotes').textContent = formatNumber(totalQuotes);
             document.getElementById('winRate').textContent = formatPercent(winRate);
             document.getElementById('winRateSub').textContent = `${formatNumber(closedWon.length)} won of ${formatNumber(totalClosed)} closed`;
+            document.getElementById('winRateQuoted').textContent = formatPercent(winRateQuoted);
+            document.getElementById('winRateQuotedSub').textContent = `${formatNumber(closedWon.length)} won of ${formatNumber(totalQuotes)} quoted · ${formatNumber(totalQuotes - totalClosed)} still open`;
             document.getElementById('totalValue').textContent = formatCurrency(totalWonValue);
             document.getElementById('avgDealSize').textContent = `Avg deal: ${formatCurrency(avgDeal)}`;
             document.getElementById('totalConversionRatio').textContent = formatPercent(totalConversionRatio);
@@ -3763,6 +3782,8 @@
             sortedOwners.forEach(([owner, stats]) => {
                 const totalClosed = stats.wonCount + stats.lostCount;
                 const winRate = totalClosed > 0 ? stats.wonCount / totalClosed : 0;
+                const openCount = stats.totalCount - totalClosed;
+                const winRateQuoted = stats.totalCount > 0 ? stats.wonCount / stats.totalCount : 0;
                 const totalQuoted = stats.totalQuoted;
                 const timing = stats.timingValue;
 
@@ -3776,10 +3797,17 @@
                     <td class="stat-value">${formatCurrency(totalQuoted)}</td>
                     <td><span class="stat-value">${formatNumber(stats.wonCount)}</span></td>
                     <td><span style="color: var(--accent-danger);">${formatNumber(stats.lostCount)}</span></td>
+                    <td><span style="color: var(--text-secondary);">${formatNumber(openCount)}</span></td>
                     <td>
                         <span class="stat-percent win-rate">${formatPercent(winRate)}</span>
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: ${winRate * 100}%"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="stat-percent win-rate">${formatPercent(winRateQuoted)}</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${winRateQuoted * 100}%"></div>
                         </div>
                     </td>
                     <td class="stat-value">${formatCurrency(stats.wonValue)}</td>
