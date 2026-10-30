@@ -21,8 +21,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Step 1: Get access token using refresh token
-        const accessToken = await refreshAccessToken();
+        // Step 1: Get access token (client credentials flow - no refresh token to expire)
+        const accessToken = await getAccessToken();
 
         // Step 2: Execute SOQL query
         const opportunities = await querySalesforce(accessToken);
@@ -50,25 +50,27 @@ export default async function handler(req, res) {
 }
 
 /**
- * Exchange refresh token for access token
+ * Get an access token via the OAuth client credentials flow.
+ * The External Client App runs as a fixed Salesforce user, so there is no
+ * refresh token to expire (the old refresh token hit its 365-day limit).
  */
-async function refreshAccessToken() {
-    const { SF_CLIENT_ID, SF_CLIENT_SECRET, SF_REFRESH_TOKEN } = process.env;
+async function getAccessToken() {
+    const { SF_CLIENT_ID, SF_CLIENT_SECRET, SF_INSTANCE_URL } = process.env;
 
-    if (!SF_CLIENT_ID || !SF_CLIENT_SECRET || !SF_REFRESH_TOKEN) {
+    if (!SF_CLIENT_ID || !SF_CLIENT_SECRET || !SF_INSTANCE_URL) {
         const error = new Error('Missing Salesforce credentials in environment variables');
         error.code = 'CONFIG_ERROR';
         error.status = 500;
         throw error;
     }
 
-    const tokenUrl = 'https://login.salesforce.com/services/oauth2/token';
+    // Client credentials must use the org's My Domain, not login.salesforce.com
+    const tokenUrl = `${SF_INSTANCE_URL}/services/oauth2/token`;
 
     const params = new URLSearchParams({
-        grant_type: 'refresh_token',
+        grant_type: 'client_credentials',
         client_id: SF_CLIENT_ID,
-        client_secret: SF_CLIENT_SECRET,
-        refresh_token: SF_REFRESH_TOKEN
+        client_secret: SF_CLIENT_SECRET
     });
 
     const response = await fetch(tokenUrl, {

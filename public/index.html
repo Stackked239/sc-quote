@@ -4691,42 +4691,9 @@
             });
         });
 
-        // Auto-load the CSV if it exists in the same directory
+        // Auto-load live Salesforce data on open so nobody works from a stale CSV export
         window.addEventListener('load', function() {
-            // Try to load the default CSV file (try new file first, then fall back to old)
-            fetch('report1765904777647.csv')
-                .then(response => {
-                    if (response.ok) return response.text();
-                    // Fall back to old file
-                    return fetch('report1765897875644.csv').then(r => {
-                        if (r.ok) return r.text();
-                        throw new Error('No CSV file found');
-                    });
-                })
-                .then(csvText => {
-                    document.getElementById('loading').classList.add('active');
-                    
-                    Papa.parse(csvText, {
-                        header: true,
-                        complete: function(results) {
-                            rawData = processData(results.data);
-                            filteredData = [...rawData];
-                            
-                            populateOwnerFilter();
-                            setDateRange();
-                            
-                            document.getElementById('emptyState').style.display = 'none';
-                            document.getElementById('dashboardContent').style.display = 'block';
-                            
-                            updateDashboard();
-                            
-                            document.getElementById('loading').classList.remove('active');
-                        }
-                    });
-                })
-                .catch(err => {
-                    console.log('No default CSV found, waiting for user upload');
-                });
+            document.getElementById('fetchSalesforce').click();
         });
     </script>
 </body>
